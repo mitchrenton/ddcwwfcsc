@@ -28,8 +28,8 @@ wp-content/themes/*
 # Plugin: generated / vendor directories
 # ================================================
 
-# Composer-installed dependencies (run `composer install` after cloning)
-wp-content/plugins/ddcwwfcsc/vendor/
+# Composer-installed dependencies
+# vendor/ is committed so Pressable can deploy without a build step
 
 # npm dependencies (not currently used)
 wp-content/plugins/ddcwwfcsc/node_modules/
