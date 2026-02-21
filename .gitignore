@@ -5,8 +5,9 @@
 # Ignore everything at the repo root …
 /*
 
-# … but keep this file and wp-content/
+# … but keep these files and wp-content/
 !.gitignore
+!.github/
 !wp-content/
 
 # Within wp-content, ignore everything …
