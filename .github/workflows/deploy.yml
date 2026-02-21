@@ -24,6 +24,9 @@ jobs:
             echo "theme_path=public_html/ddcwwfcsc_staging/wp-content/themes/ddcwwfcsc-theme/" >> $GITHUB_OUTPUT
           fi
 
+      - name: Install lftp
+        run: sudo apt-get install -y lftp
+
       - name: Deploy plugin
         run: |
           lftp -c "
