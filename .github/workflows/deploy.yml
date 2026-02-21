@@ -31,6 +31,10 @@ jobs:
         run: |
           lftp -c "
             set ftp:ssl-allow no;
+            set ftp:passive-mode yes;
+            set net:timeout 30;
+            set net:max-retries 2;
+            set mirror:parallel-transfer-count 1;
             open -u ${{ secrets.SFTP_USERNAME }},${{ secrets.SFTP_PASSWORD }} ftp://${{ secrets.SFTP_HOST }};
             mirror -R --verbose wp-content/plugins/ddcwwfcsc/ ${{ steps.vars.outputs.plugin_path }}
           "
@@ -39,6 +43,10 @@ jobs:
         run: |
           lftp -c "
             set ftp:ssl-allow no;
+            set ftp:passive-mode yes;
+            set net:timeout 30;
+            set net:max-retries 2;
+            set mirror:parallel-transfer-count 1;
             open -u ${{ secrets.SFTP_USERNAME }},${{ secrets.SFTP_PASSWORD }} ftp://${{ secrets.SFTP_HOST }};
             mirror -R --verbose wp-content/themes/ddcwwfcsc-theme/ ${{ steps.vars.outputs.theme_path }}
           "
