@@ -25,23 +25,17 @@ jobs:
           fi
 
       - name: Deploy plugin
-        uses: SamKirkland/FTP-Deploy-Action@v4
-        with:
-          server: ${{ secrets.SFTP_HOST }}
-          username: ${{ secrets.SFTP_USERNAME }}
-          password: ${{ secrets.SFTP_PASSWORD }}
-          protocol: sftp
-          port: 22
-          local-dir: ./wp-content/plugins/ddcwwfcsc/
-          server-dir: ${{ steps.vars.outputs.plugin_path }}
+        run: |
+          lftp -c "
+            set sftp:auto-confirm yes;
+            open -u ${{ secrets.SFTP_USERNAME }},${{ secrets.SFTP_PASSWORD }} sftp://${{ secrets.SFTP_HOST }};
+            mirror -R --verbose --delete wp-content/plugins/ddcwwfcsc/ ${{ steps.vars.outputs.plugin_path }}
+          "
 
       - name: Deploy theme
-        uses: SamKirkland/FTP-Deploy-Action@v4
-        with:
-          server: ${{ secrets.SFTP_HOST }}
-          username: ${{ secrets.SFTP_USERNAME }}
-          password: ${{ secrets.SFTP_PASSWORD }}
-          protocol: sftp
-          port: 22
-          local-dir: ./wp-content/themes/ddcwwfcsc-theme/
-          server-dir: ${{ steps.vars.outputs.theme_path }}
+        run: |
+          lftp -c "
+            set sftp:auto-confirm yes;
+            open -u ${{ secrets.SFTP_USERNAME }},${{ secrets.SFTP_PASSWORD }} sftp://${{ secrets.SFTP_HOST }};
+            mirror -R --verbose --delete wp-content/themes/ddcwwfcsc-theme/ ${{ steps.vars.outputs.theme_path }}
+          "
