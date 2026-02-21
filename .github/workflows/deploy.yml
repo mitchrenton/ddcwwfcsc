@@ -17,11 +17,11 @@ jobs:
         id: vars
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
-            echo "plugin_path=public_html/wp-content/plugins/ddcwwfcsc/" >> $GITHUB_OUTPUT
-            echo "theme_path=public_html/wp-content/themes/ddcwwfcsc-theme/" >> $GITHUB_OUTPUT
+            echo "plugin_path=wp-content/plugins/ddcwwfcsc/" >> $GITHUB_OUTPUT
+            echo "theme_path=wp-content/themes/ddcwwfcsc-theme/" >> $GITHUB_OUTPUT
           else
-            echo "plugin_path=public_html/ddcwwfcsc_staging/wp-content/plugins/ddcwwfcsc/" >> $GITHUB_OUTPUT
-            echo "theme_path=public_html/ddcwwfcsc_staging/wp-content/themes/ddcwwfcsc-theme/" >> $GITHUB_OUTPUT
+            echo "plugin_path=ddcwwfcsc_staging/wp-content/plugins/ddcwwfcsc/" >> $GITHUB_OUTPUT
+            echo "theme_path=ddcwwfcsc_staging/wp-content/themes/ddcwwfcsc-theme/" >> $GITHUB_OUTPUT
           fi
 
       - name: Install lftp
