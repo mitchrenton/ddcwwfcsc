@@ -36,6 +36,9 @@ wp-content/themes/*
 wp-content/plugins/ddcwwfcsc/node_modules/
 
 # ================================================
+# Hostinger auto-generated files
+create_autologin_*.php
+
 # OS / editor noise
 # ================================================
 
