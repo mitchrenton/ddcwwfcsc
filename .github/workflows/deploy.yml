@@ -32,8 +32,8 @@ jobs:
           lftp -c "
             set ftp:ssl-allow no;
             open -u ${{ secrets.SFTP_USERNAME }},${{ secrets.SFTP_PASSWORD }} ftp://${{ secrets.SFTP_HOST }};
-            mkdir -fp ${{ steps.vars.outputs.plugin_path }};
-            mirror -R --verbose --delete wp-content/plugins/ddcwwfcsc/ ${{ steps.vars.outputs.plugin_path }}
+            mkdir -p ${{ steps.vars.outputs.plugin_path }};
+            mirror -R --verbose wp-content/plugins/ddcwwfcsc/ ${{ steps.vars.outputs.plugin_path }}
           "
 
       - name: Deploy theme
@@ -41,6 +41,6 @@ jobs:
           lftp -c "
             set ftp:ssl-allow no;
             open -u ${{ secrets.SFTP_USERNAME }},${{ secrets.SFTP_PASSWORD }} ftp://${{ secrets.SFTP_HOST }};
-            mkdir -fp ${{ steps.vars.outputs.theme_path }};
-            mirror -R --verbose --delete wp-content/themes/ddcwwfcsc-theme/ ${{ steps.vars.outputs.theme_path }}
+            mkdir -p ${{ steps.vars.outputs.theme_path }};
+            mirror -R --verbose wp-content/themes/ddcwwfcsc-theme/ ${{ steps.vars.outputs.theme_path }}
           "
