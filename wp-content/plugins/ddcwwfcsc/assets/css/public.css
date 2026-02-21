@@ -1,0 +1,12 @@
+/* Additional front-end styles for DDCWWFCSC */
+
+/* Ensure block styles render correctly in all themes */
+.ddcwwfcsc-tickets {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+}
+
+.ddcwwfcsc-tickets *,
+.ddcwwfcsc-tickets *::before,
+.ddcwwfcsc-tickets *::after {
+    box-sizing: border-box;
+}

@@ -1,0 +1,13 @@
+{
+    "name": "ddcwwfcsc",
+    "version": "1.0.0",
+    "description": "DDCWWFCSC - Daventry Dun Cow Wolverhampton Wanderers FC Supporters Club Plugin",
+    "private": true,
+    "scripts": {
+        "build": "wp-scripts build blocks/tickets/index.js --output-path=blocks/tickets/build",
+        "start": "wp-scripts start blocks/tickets/index.js --output-path=blocks/tickets/build"
+    },
+    "devDependencies": {
+        "@wordpress/scripts": "^30.0.0"
+    }
+}

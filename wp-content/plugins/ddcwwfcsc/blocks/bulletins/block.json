@@ -1,0 +1,26 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "ddcwwfcsc/bulletins",
+    "version": "1.0.0",
+    "title": "DDCWWFCSC Bulletins",
+    "category": "widgets",
+    "icon": "megaphone",
+    "description": "Displays active bulletins as a scrolling news ticker.",
+    "textdomain": "ddcwwfcsc",
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php",
+    "attributes": {
+        "limit": {
+            "type": "number",
+            "default": 10
+        },
+        "speed": {
+            "type": "number",
+            "default": 30
+        }
+    },
+    "supports": {
+        "html": false
+    }
+}

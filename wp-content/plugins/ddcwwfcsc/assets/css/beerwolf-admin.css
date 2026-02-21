@@ -1,0 +1,43 @@
+.ddcwwfcsc-pub-fieldset {
+    border: 1px solid #c3c4c7;
+    background: #f6f7f7;
+    padding: 0 12px 12px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+}
+
+.ddcwwfcsc-pub-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #dcdcde;
+    margin-bottom: 4px;
+}
+
+.ddcwwfcsc-pub-header .ddcwwfcsc-pub-number {
+    font-size: 14px;
+}
+
+.ddcwwfcsc-pub-actions .button {
+    min-width: 30px;
+    padding: 0 6px;
+    margin-left: 4px;
+}
+
+.ddcwwfcsc-pub-fieldset .form-table th {
+    width: 140px;
+    padding: 8px 10px 8px 0;
+}
+
+.ddcwwfcsc-pub-fieldset .form-table td {
+    padding: 8px 0;
+}
+
+.ddcwwfcsc-pub-image-preview img {
+    max-width: 200px;
+    max-height: 150px;
+    display: block;
+    margin-bottom: 8px;
+    border-radius: 4px;
+}

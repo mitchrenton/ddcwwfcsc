@@ -1,0 +1,18 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "ddcwwfcsc/tickets",
+    "version": "1.0.0",
+    "title": "DDCWWFCSC Tickets",
+    "category": "widgets",
+    "icon": "tickets",
+    "description": "Displays fixtures currently on sale with a ticket request form.",
+    "textdomain": "ddcwwfcsc",
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php",
+    "style": ["file:./style.css", "ddcwwfcsc-ticket-front"],
+    "supports": {
+        "html": false,
+        "multiple": false
+    }
+}

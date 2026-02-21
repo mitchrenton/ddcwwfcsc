@@ -1,0 +1,256 @@
+<?php
+/**
+ * Event front-end rendering and sign-up AJAX handler.
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+class DDCWWFCSC_Event_Front {
+
+    /**
+     * Initialize hooks.
+     */
+    public static function init() {
+        add_filter( 'the_content', array( __CLASS__, 'filter_content' ) );
+        add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+        add_action( 'wp_ajax_ddcwwfcsc_event_signup', array( __CLASS__, 'handle_signup' ) );
+    }
+
+    /**
+     * Prepend event details to singular event content.
+     * The signup form is rendered in the sidebar by the theme template.
+     */
+    public static function filter_content( $content ) {
+        if ( ! is_singular( 'ddcwwfcsc_event' ) || ! in_the_loop() || ! is_main_query() ) {
+            return $content;
+        }
+
+        return self::render_details( get_the_ID() ) . $content;
+    }
+
+    /**
+     * Render the event details card and sign-up form.
+     *
+     * @param int $post_id Post ID.
+     * @return string HTML output.
+     */
+    public static function render_event_html( $post_id ) {
+        return self::render_details( $post_id ) . self::render_signup_form( $post_id );
+    }
+
+    /**
+     * Render the event details card only.
+     *
+     * @param int $post_id Post ID.
+     * @return string HTML output.
+     */
+    public static function render_details( $post_id ) {
+        $event_date       = get_post_meta( $post_id, '_ddcwwfcsc_event_date', true );
+        $meeting_time     = get_post_meta( $post_id, '_ddcwwfcsc_event_meeting_time', true );
+        $meeting_location = get_post_meta( $post_id, '_ddcwwfcsc_event_meeting_location', true );
+        $location         = get_post_meta( $post_id, '_ddcwwfcsc_event_location', true );
+        $price_member     = get_post_meta( $post_id, '_ddcwwfcsc_event_price_member', true );
+        $price_non_member = get_post_meta( $post_id, '_ddcwwfcsc_event_price_non_member', true );
+        $lat              = get_post_meta( $post_id, '_ddcwwfcsc_event_lat', true );
+        $lng              = get_post_meta( $post_id, '_ddcwwfcsc_event_lng', true );
+        $signups          = DDCWWFCSC_Event_CPT::get_signups( $post_id );
+        $count            = count( $signups );
+        $api_key          = get_option( 'ddcwwfcsc_google_maps_api_key', '' );
+
+        ob_start();
+        ?>
+        <div class="ddcwwfcsc-event-details">
+            <dl class="ddcwwfcsc-event-details-list">
+                <?php if ( $event_date ) : ?>
+                    <div class="ddcwwfcsc-event-detail">
+                        <dt><?php esc_html_e( 'Date', 'ddcwwfcsc' ); ?></dt>
+                        <dd><?php echo esc_html( wp_date( 'l j F Y, g:i a', strtotime( $event_date ) ) ); ?></dd>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ( $meeting_time ) : ?>
+                    <div class="ddcwwfcsc-event-detail">
+                        <dt><?php esc_html_e( 'Meeting Time', 'ddcwwfcsc' ); ?></dt>
+                        <dd><?php echo esc_html( wp_date( 'g:i a', strtotime( $meeting_time ) ) ); ?></dd>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ( $meeting_location ) : ?>
+                    <div class="ddcwwfcsc-event-detail">
+                        <dt><?php esc_html_e( 'Meeting Location', 'ddcwwfcsc' ); ?></dt>
+                        <dd><?php echo esc_html( $meeting_location ); ?></dd>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ( $location ) : ?>
+                    <div class="ddcwwfcsc-event-detail">
+                        <dt><?php esc_html_e( 'Venue', 'ddcwwfcsc' ); ?></dt>
+                        <dd><?php echo esc_html( $location ); ?></dd>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ( $price_member || $price_non_member ) : ?>
+                    <div class="ddcwwfcsc-event-detail">
+                        <dt><?php esc_html_e( 'Cost', 'ddcwwfcsc' ); ?></dt>
+                        <dd>
+                            <?php
+                            $parts = array();
+                            if ( $price_member ) {
+                                $parts[] = sprintf( __( 'Members: £%s', 'ddcwwfcsc' ), number_format( (float) $price_member, 2 ) );
+                            }
+                            if ( $price_non_member ) {
+                                $parts[] = sprintf( __( 'Non-members: £%s', 'ddcwwfcsc' ), number_format( (float) $price_non_member, 2 ) );
+                            }
+                            echo esc_html( implode( ' / ', $parts ) );
+                            ?>
+                        </dd>
+                    </div>
+                <?php endif; ?>
+            </dl>
+
+            <?php if ( $lat && $lng && $api_key ) : ?>
+                <?php self::enqueue_map_scripts( $api_key ); ?>
+                <div class="ddcwwfcsc-event-map" data-lat="<?php echo esc_attr( $lat ); ?>" data-lng="<?php echo esc_attr( $lng ); ?>" data-name="<?php echo esc_attr( $location ); ?>"></div>
+            <?php endif; ?>
+
+            <p class="ddcwwfcsc-event-attendee-count">
+                <?php printf( esc_html__( 'Attendees: %s', 'ddcwwfcsc' ), '<span class="ddcwwfcsc-event-count">' . esc_html( $count ) . '</span>' ); ?>
+            </p>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Render the sign-up form only.
+     *
+     * @param int $post_id Post ID.
+     * @return string HTML output.
+     */
+    public static function render_signup_form( $post_id ) {
+        ob_start();
+        ?>
+        <div class="ddcwwfcsc-event-signup-section">
+            <h3><?php esc_html_e( 'Sign Up', 'ddcwwfcsc' ); ?></h3>
+            <?php if ( ! is_user_logged_in() ) : ?>
+                <p class="ddcwwfcsc-login-prompt">
+                    <a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>"><?php esc_html_e( 'Log in', 'ddcwwfcsc' ); ?></a> <?php esc_html_e( 'to sign up for this event.', 'ddcwwfcsc' ); ?>
+                </p>
+            <?php else :
+                $current_user = wp_get_current_user();
+            ?>
+            <form class="ddcwwfcsc-event-signup-form" data-event-id="<?php echo esc_attr( $post_id ); ?>">
+                <div class="ddcwwfcsc-event-signup-field">
+                    <label for="ddcwwfcsc-signup-name"><?php esc_html_e( 'Name', 'ddcwwfcsc' ); ?></label>
+                    <input type="text" id="ddcwwfcsc-signup-name" name="name" value="<?php echo esc_attr( $current_user->display_name ); ?>" required>
+                </div>
+                <div class="ddcwwfcsc-event-signup-field">
+                    <label for="ddcwwfcsc-signup-email"><?php esc_html_e( 'Email', 'ddcwwfcsc' ); ?></label>
+                    <input type="email" id="ddcwwfcsc-signup-email" name="email" value="<?php echo esc_attr( $current_user->user_email ); ?>" required>
+                </div>
+                <button type="submit" class="ddcwwfcsc-event-signup-btn"><?php esc_html_e( 'Sign Up', 'ddcwwfcsc' ); ?></button>
+                <div class="ddcwwfcsc-event-signup-message"></div>
+            </form>
+            <?php endif; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Enqueue front-end assets on singular event pages.
+     */
+    public static function enqueue_assets() {
+        if ( ! is_singular( 'ddcwwfcsc_event' ) ) {
+            return;
+        }
+
+        wp_enqueue_style(
+            'ddcwwfcsc-event-front',
+            DDCWWFCSC_PLUGIN_URL . 'assets/css/event-front.css',
+            array(),
+            DDCWWFCSC_VERSION
+        );
+
+        if ( is_user_logged_in() ) {
+            $current_user = wp_get_current_user();
+
+            wp_enqueue_script(
+                'ddcwwfcsc-event-signup',
+                DDCWWFCSC_PLUGIN_URL . 'assets/js/event-signup.js',
+                array(),
+                DDCWWFCSC_VERSION,
+                true
+            );
+
+            wp_localize_script( 'ddcwwfcsc-event-signup', 'ddcwwfcsc_event_signup', array(
+                'ajax_url'   => admin_url( 'admin-ajax.php' ),
+                'nonce'      => wp_create_nonce( 'ddcwwfcsc_event_signup' ),
+                'post_id'    => get_the_ID(),
+                'user_name'  => $current_user->display_name,
+                'user_email' => $current_user->user_email,
+            ) );
+        }
+    }
+
+    /**
+     * Handle the sign-up AJAX request.
+     */
+    public static function handle_signup() {
+        // Require login (defence-in-depth).
+        if ( ! is_user_logged_in() ) {
+            wp_send_json_error( array( 'message' => __( 'You must be logged in to sign up.', 'ddcwwfcsc' ) ) );
+        }
+
+        check_ajax_referer( 'ddcwwfcsc_event_signup', 'nonce' );
+
+        $post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+        $name    = isset( $_POST['name'] ) ? sanitize_text_field( $_POST['name'] ) : '';
+        $email   = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
+
+        if ( ! $post_id || 'ddcwwfcsc_event' !== get_post_type( $post_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid event.', 'ddcwwfcsc' ) ) );
+        }
+
+        if ( ! $name || ! $email ) {
+            wp_send_json_error( array( 'message' => __( 'Please provide your name and email.', 'ddcwwfcsc' ) ) );
+        }
+
+        if ( ! is_email( $email ) ) {
+            wp_send_json_error( array( 'message' => __( 'Please provide a valid email address.', 'ddcwwfcsc' ) ) );
+        }
+
+        $count = DDCWWFCSC_Event_CPT::add_signup( $post_id, $name, $email );
+
+        DDCWWFCSC_Notifications::send_event_signup_confirmation( $post_id, $name, $email );
+        DDCWWFCSC_Notifications::send_event_signup_notification( $post_id, $name, $email, $count );
+
+        wp_send_json_success( array(
+            'message' => __( 'You have been signed up successfully!', 'ddcwwfcsc' ),
+            'count'   => $count,
+        ) );
+    }
+
+    /**
+     * Enqueue Google Maps API and event map script.
+     */
+    private static function enqueue_map_scripts( $api_key ) {
+        wp_enqueue_script(
+            'ddcwwfcsc-event-map',
+            DDCWWFCSC_PLUGIN_URL . 'assets/js/event-map.js',
+            array(),
+            DDCWWFCSC_VERSION,
+            true
+        );
+
+        wp_enqueue_script(
+            'google-maps-api',
+            'https://maps.googleapis.com/maps/api/js?key=' . urlencode( $api_key ) . '&callback=ddcwwfcscInitEventMaps',
+            array( 'ddcwwfcsc-event-map' ),
+            null,
+            true
+        );
+    }
+}

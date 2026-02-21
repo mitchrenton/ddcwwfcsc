@@ -1,0 +1,8 @@
+{
+    "require": {
+        "stripe/stripe-php": "^16.0"
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

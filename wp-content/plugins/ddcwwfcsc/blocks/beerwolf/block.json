@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "ddcwwfcsc/beerwolf",
+    "version": "1.0.0",
+    "title": "DDCWWFCSC Beerwolf Guide",
+    "category": "widgets",
+    "icon": "beer",
+    "description": "Displays a Beerwolf pub guide for a selected opponent.",
+    "textdomain": "ddcwwfcsc",
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php",
+    "style": "file:./style.css",
+    "attributes": {
+        "opponentId": {
+            "type": "number",
+            "default": 0
+        }
+    },
+    "supports": {
+        "html": false
+    }
+}

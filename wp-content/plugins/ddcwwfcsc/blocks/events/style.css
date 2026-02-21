@@ -1,0 +1,22 @@
+.ddcwwfcsc-events {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.ddcwwfcsc-no-events {
+    text-align: center;
+    padding: 40px 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    color: #666;
+}
+
+.ddcwwfcsc-event-card {
+    margin-bottom: 2em;
+}
+
+.ddcwwfcsc-event-card-title {
+    margin: 0 0 0.75em;
+    font-size: 1.4em;
+    font-weight: 700;
+}

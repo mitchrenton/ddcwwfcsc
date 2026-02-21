@@ -1,0 +1,26 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "ddcwwfcsc/honorary-members",
+    "version": "1.0.0",
+    "title": "DDCWWFCSC Honorary Members",
+    "category": "widgets",
+    "icon": "awards",
+    "description": "Displays a grid of honorary club members.",
+    "textdomain": "ddcwwfcsc",
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php",
+    "attributes": {
+        "columns": {
+            "type": "number",
+            "default": 3
+        },
+        "limit": {
+            "type": "number",
+            "default": 0
+        }
+    },
+    "supports": {
+        "html": false
+    }
+}

@@ -1,0 +1,45 @@
+.ddcwwfcsc-bulletin-ticker {
+    overflow: hidden;
+    background-color: #231f20;
+    color: #FDB913;
+    padding: 10px 0;
+    white-space: nowrap;
+}
+
+.ddcwwfcsc-bulletin-ticker-track {
+    display: inline-flex;
+    align-items: center;
+    animation: ddcwwfcsc-ticker linear infinite;
+}
+
+.ddcwwfcsc-bulletin-ticker-item {
+    padding: 0 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.ddcwwfcsc-bulletin-ticker-separator {
+    font-size: 10px;
+    opacity: 0.5;
+}
+
+@keyframes ddcwwfcsc-ticker {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Pause on hover for readability */
+.ddcwwfcsc-bulletin-ticker:hover .ddcwwfcsc-bulletin-ticker-track {
+    animation-play-state: paused;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .ddcwwfcsc-bulletin-ticker-track {
+        animation-play-state: paused;
+    }
+}

@@ -1,0 +1,175 @@
+/* Payment Page Styles */
+
+.ddcwwfcsc-payment-wrap {
+    max-width: 560px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+}
+
+.ddcwwfcsc-payment-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+}
+
+.ddcwwfcsc-payment-card h1 {
+    font-family: var(--font-heading, 'Playfair Display', serif);
+    font-size: 1.5rem;
+    margin: 0 0 1.5rem;
+    text-align: center;
+    color: #231f20;
+}
+
+/* Message states (invalid, expired, success, etc.) */
+.ddcwwfcsc-payment-message {
+    text-align: center;
+}
+
+.ddcwwfcsc-payment-message p {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.6;
+}
+
+.ddcwwfcsc-payment-success h1 {
+    color: #00a32a;
+}
+
+/* Fixture card */
+.ddcwwfcsc-payment-fixture {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.ddcwwfcsc-payment-badge {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.ddcwwfcsc-payment-match {
+    font-family: var(--font-heading, 'Playfair Display', serif);
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+    color: #231f20;
+}
+
+.ddcwwfcsc-payment-date {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Summary rows */
+.ddcwwfcsc-payment-summary {
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 1.5rem;
+}
+
+.ddcwwfcsc-payment-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.ddcwwfcsc-payment-row + .ddcwwfcsc-payment-row {
+    border-top: 1px solid #f0f0f0;
+}
+
+.ddcwwfcsc-payment-total {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #231f20;
+}
+
+/* CTA button */
+.ddcwwfcsc-payment-actions {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.ddcwwfcsc-payment-btn {
+    display: inline-block;
+    background: var(--color-gold, #d4a843);
+    color: #231f20;
+    text-decoration: none;
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 4px;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.ddcwwfcsc-payment-btn:hover {
+    background: var(--color-gold-hover, #c49a35);
+    transform: translateY(-1px);
+}
+
+.ddcwwfcsc-payment-btn:active {
+    transform: translateY(0);
+}
+
+/* Secure badge */
+.ddcwwfcsc-payment-secure {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #999;
+    margin: 0;
+}
+
+/* Dark mode */
+[data-theme="dark"] .ddcwwfcsc-payment-card {
+    background: #1e1e1e;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .ddcwwfcsc-payment-card h1 {
+    color: #f0f0f0;
+}
+
+[data-theme="dark"] .ddcwwfcsc-payment-message p {
+    color: #bbb;
+}
+
+[data-theme="dark"] .ddcwwfcsc-payment-fixture {
+    background: #2a2a2a;
+}
+
+[data-theme="dark"] .ddcwwfcsc-payment-match {
+    color: #f0f0f0;
+}
+
+[data-theme="dark"] .ddcwwfcsc-payment-date {
+    color: #aaa;
+}
+
+[data-theme="dark"] .ddcwwfcsc-payment-summary {
+    border-color: #333;
+}
+
+[data-theme="dark"] .ddcwwfcsc-payment-row {
+    color: #ccc;
+}
+
+[data-theme="dark"] .ddcwwfcsc-payment-row + .ddcwwfcsc-payment-row {
+    border-color: #333;
+}
+
+[data-theme="dark"] .ddcwwfcsc-payment-total {
+    color: #f0f0f0;
+}
+
+[data-theme="dark"] .ddcwwfcsc-payment-secure {
+    color: #777;
+}

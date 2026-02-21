@@ -1,0 +1,9 @@
+/*
+ * Block-only wrapper style.
+ * Component styles (fixture card, form, etc.) live in assets/css/ticket-front.css
+ * and are registered globally by the plugin.
+ */
+.ddcwwfcsc-tickets {
+    max-width: 800px;
+    margin: 0 auto;
+}

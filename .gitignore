@@ -1,0 +1,46 @@
+# ================================================
+# WordPress root – only track our plugin + theme
+# ================================================
+
+# Ignore everything at the repo root …
+/*
+
+# … but keep this file and wp-content/
+!.gitignore
+!wp-content/
+
+# Within wp-content, ignore everything …
+wp-content/*
+
+# … except the plugins and themes directories
+!wp-content/plugins/
+!wp-content/themes/
+
+# Within plugins, ignore everything except ours
+wp-content/plugins/*
+!wp-content/plugins/ddcwwfcsc/
+
+# Within themes, ignore everything except ours
+wp-content/themes/*
+!wp-content/themes/ddcwwfcsc-theme/
+
+# ================================================
+# Plugin: generated / vendor directories
+# ================================================
+
+# Composer-installed dependencies (run `composer install` after cloning)
+wp-content/plugins/ddcwwfcsc/vendor/
+
+# npm dependencies (not currently used)
+wp-content/plugins/ddcwwfcsc/node_modules/
+
+# ================================================
+# OS / editor noise
+# ================================================
+
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
