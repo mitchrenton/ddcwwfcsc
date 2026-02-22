@@ -36,18 +36,6 @@ class DDCWWFCSC_Settings {
      * Register settings and sections.
      */
     public static function register_settings() {
-        register_setting( 'ddcwwfcsc_settings', 'ddcwwfcsc_default_tickets', array(
-            'type'              => 'integer',
-            'sanitize_callback' => 'absint',
-            'default'           => 8,
-        ) );
-
-        register_setting( 'ddcwwfcsc_settings', 'ddcwwfcsc_default_max_per_person', array(
-            'type'              => 'integer',
-            'sanitize_callback' => 'absint',
-            'default'           => 2,
-        ) );
-
         // Google Maps API key.
         register_setting( 'ddcwwfcsc_settings', 'ddcwwfcsc_google_maps_api_key', array(
             'type'              => 'string',

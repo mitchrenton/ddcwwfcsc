@@ -340,6 +340,12 @@ small, .text-sm {
 	width: auto;
 }
 
+.site-branding__crest {
+	height: 44px;
+	width: auto;
+	flex-shrink: 0;
+}
+
 .site-title {
 	font-family: var(--font-heading);
 	font-size: 1.375rem;

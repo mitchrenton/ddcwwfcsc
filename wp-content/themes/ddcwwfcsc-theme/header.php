@@ -27,6 +27,13 @@ defined( 'ABSPATH' ) || exit;
 			<?php if ( has_custom_logo() ) : ?>
 				<?php the_custom_logo(); ?>
 			<?php endif; ?>
+			<img
+				src="<?php echo esc_url( get_theme_file_uri( 'assets/img/wolves-crest.svg' ) ); ?>"
+				alt="Wolverhampton Wanderers FC"
+				class="site-branding__crest"
+				width="44"
+				height="44"
+			>
 			<div class="site-branding__text">
 				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="site-title" rel="home">
 					<?php bloginfo( 'name' ); ?>
