@@ -56,6 +56,14 @@ $past = new WP_Query( array(
 					<?php endwhile; ?>
 				</div>
 			</section>
+		<?php elseif ( $past->have_posts() ) : ?>
+			<section class="event-archive-section">
+				<h2 class="section-heading"><?php esc_html_e( 'Upcoming', 'ddcwwfcsc-theme' ); ?></h2>
+				<div class="event-empty-state">
+					<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+					<p><?php esc_html_e( 'No events currently scheduled — check back soon.', 'ddcwwfcsc-theme' ); ?></p>
+				</div>
+			</section>
 		<?php endif; ?>
 		<?php wp_reset_postdata(); ?>
 
@@ -72,7 +80,11 @@ $past = new WP_Query( array(
 		<?php wp_reset_postdata(); ?>
 
 		<?php if ( ! $upcoming->have_posts() && ! $past->have_posts() ) : ?>
-			<?php get_template_part( 'template-parts/content/content', 'none' ); ?>
+			<div class="event-empty-state event-empty-state--full">
+				<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+				<h2><?php esc_html_e( 'No events yet', 'ddcwwfcsc-theme' ); ?></h2>
+				<p><?php esc_html_e( 'Nothing planned just yet — check back soon for upcoming events.', 'ddcwwfcsc-theme' ); ?></p>
+			</div>
 		<?php endif; ?>
 	</div>
 </main>

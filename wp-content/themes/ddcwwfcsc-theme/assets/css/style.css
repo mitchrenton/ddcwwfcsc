@@ -1380,6 +1380,30 @@ label {
 	margin-bottom: 0;
 }
 
+.event-empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: var(--space-sm);
+	padding: var(--space-2xl) var(--space-lg);
+	color: var(--text-muted);
+}
+
+.event-empty-state--full {
+	padding: var(--space-3xl) var(--space-lg);
+}
+
+.event-empty-state h2 {
+	font-size: 1.25rem;
+	color: var(--text-muted);
+	margin: 0;
+}
+
+.event-empty-state p {
+	margin: 0;
+}
+
 .event-card {
 	background: var(--bg-card);
 	border: 1px solid var(--border);
