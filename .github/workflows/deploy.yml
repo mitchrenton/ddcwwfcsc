@@ -3,7 +3,6 @@ name: Deploy
 on:
   push:
     branches:
-      - main
       - staging
 
 jobs:
@@ -13,38 +12,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set deployment paths
-        id: vars
+      - name: Setup SSH
         run: |
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            echo "plugin_path=wp-content/plugins/ddcwwfcsc/" >> $GITHUB_OUTPUT
-            echo "theme_path=wp-content/themes/ddcwwfcsc-theme/" >> $GITHUB_OUTPUT
-          else
-            echo "plugin_path=ddcwwfcsc_staging/wp-content/plugins/ddcwwfcsc/" >> $GITHUB_OUTPUT
-            echo "theme_path=ddcwwfcsc_staging/wp-content/themes/ddcwwfcsc-theme/" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Install lftp
-        run: sudo apt-get install -y lftp
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy plugin
         run: |
-          lftp -c "
-            set sftp:auto-confirm yes;
-            set net:timeout 30;
-            set net:max-retries 2;
-            set mirror:parallel-transfer-count 1;
-            open -u ${{ secrets.SFTP_USERNAME }},${{ secrets.SFTP_PASSWORD }} sftp://${{ secrets.SFTP_HOST }};
-            mirror -R --verbose wp-content/plugins/ddcwwfcsc/ ${{ steps.vars.outputs.plugin_path }}
-          "
+          rsync -avz --delete \
+            wp-content/plugins/ddcwwfcsc/ \
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:public_html/test/wp-content/plugins/ddcwwfcsc/
 
       - name: Deploy theme
         run: |
-          lftp -c "
-            set sftp:auto-confirm yes;
-            set net:timeout 30;
-            set net:max-retries 2;
-            set mirror:parallel-transfer-count 1;
-            open -u ${{ secrets.SFTP_USERNAME }},${{ secrets.SFTP_PASSWORD }} sftp://${{ secrets.SFTP_HOST }};
-            mirror -R --verbose wp-content/themes/ddcwwfcsc-theme/ ${{ steps.vars.outputs.theme_path }}
-          "
+          rsync -avz --delete \
+            wp-content/themes/ddcwwfcsc-theme/ \
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:public_html/test/wp-content/themes/ddcwwfcsc-theme/
