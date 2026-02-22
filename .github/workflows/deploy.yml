@@ -21,13 +21,13 @@ jobs:
       - name: Deploy plugin
         run: |
           rsync -avz --delete \
-            -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            -e "ssh -p 65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             wp-content/plugins/ddcwwfcsc/ \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:public_html/test/wp-content/plugins/ddcwwfcsc/
 
       - name: Deploy theme
         run: |
           rsync -avz --delete \
-            -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            -e "ssh -p 65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             wp-content/themes/ddcwwfcsc-theme/ \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:public_html/test/wp-content/themes/ddcwwfcsc-theme/
