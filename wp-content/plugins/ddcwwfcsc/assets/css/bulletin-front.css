@@ -1,8 +1,8 @@
 .ddcwwfcsc-bulletin-ticker {
     overflow: hidden;
-    background-color: #231f20;
-    color: #FDB913;
-    padding: 10px 0;
+    background-color: var(--color-grey-900);
+    color: var(--color-gold);
+    padding: var(--space-sm) 0;
     white-space: nowrap;
 }
 
@@ -13,13 +13,13 @@
 }
 
 .ddcwwfcsc-bulletin-ticker-item {
-    padding: 0 12px;
-    font-size: 14px;
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
     font-weight: 600;
 }
 
 .ddcwwfcsc-bulletin-ticker-separator {
-    font-size: 10px;
+    font-size: 0.625rem;
     opacity: 0.5;
 }
 

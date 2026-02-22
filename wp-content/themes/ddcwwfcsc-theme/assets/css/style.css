@@ -561,6 +561,7 @@ small, .text-sm {
 	margin: 0;
 	padding: 0.375rem 0;
 	z-index: 100;
+	flex-direction: column;
 }
 
 .site-member-nav__dropdown a {
@@ -1098,6 +1099,7 @@ label {
 
 .event-sidebar .ddcwwfcsc-event-signup-form {
 	flex-direction: column;
+	align-items: stretch;
 }
 
 .event-sidebar .ddcwwfcsc-event-signup-field {

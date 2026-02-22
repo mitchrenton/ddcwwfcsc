@@ -121,6 +121,14 @@
     color: #d63638;
 }
 
+[data-theme="dark"] .ddcwwfcsc-event-signup-message.success {
+    color: #4caf50;
+}
+
+[data-theme="dark"] .ddcwwfcsc-event-signup-message.error {
+    color: #ef5350;
+}
+
 @media ( max-width: 600px ) {
     .ddcwwfcsc-event-details-list {
         grid-template-columns: 1fr;

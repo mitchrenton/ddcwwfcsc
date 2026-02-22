@@ -10,7 +10,6 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    /*margin-bottom: var(--space-xl);*/
     overflow: hidden;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
@@ -163,6 +162,18 @@
     color: #991b1b;
     padding: var(--space-md);
     border: 1px solid #fecaca;
+}
+
+[data-theme="dark"] .ddcwwfcsc-form-message.success {
+    background: rgba(6, 95, 70, 0.2);
+    color: #4caf50;
+    border-color: rgba(6, 95, 70, 0.4);
+}
+
+[data-theme="dark"] .ddcwwfcsc-form-message.error {
+    background: rgba(153, 27, 27, 0.2);
+    color: #ef5350;
+    border-color: rgba(153, 27, 27, 0.4);
 }
 
 .ddcwwfcsc-sold-out {

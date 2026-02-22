@@ -20,11 +20,11 @@
     display: block;
     text-decoration: none;
     color: inherit;
-    background: var(--bg-alt, #fff);
-    border: 1px solid var(--border, #ddd);
-    border-radius: 6px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     overflow: hidden;
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    transition: box-shadow var(--transition), transform var(--transition);
 }
 
 .ddcwwfcsc-honorary-card:hover {
@@ -48,14 +48,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg-alt, #f0f0f0);
+    background: var(--bg-alt);
 }
 
 .ddcwwfcsc-honorary-card-photo--placeholder .dashicons {
     font-size: 48px;
     width: 48px;
     height: 48px;
-    color: var(--text-muted, #ccc);
+    color: var(--text-muted);
 }
 
 .ddcwwfcsc-honorary-card-info {
@@ -71,20 +71,20 @@
 .ddcwwfcsc-honorary-card-position {
     margin: 0;
     font-size: 0.85em;
-    color: var(--text-muted, #555);
+    color: var(--text-muted);
 }
 
 .ddcwwfcsc-honorary-card-years {
     margin: 0.15em 0 0;
     font-size: 0.8em;
-    color: var(--text-muted, #888);
+    color: var(--text-muted);
 }
 
 /* No members message */
 .ddcwwfcsc-honorary-none {
     text-align: center;
     padding: 2em;
-    color: var(--text-muted, #666);
+    color: var(--text-muted);
 }
 
 /* Responsive */
