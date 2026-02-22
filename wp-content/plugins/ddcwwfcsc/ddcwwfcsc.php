@@ -3,7 +3,7 @@
  * Plugin Name: DDCWWFCSC
  * Plugin URI:  https://ddcwwfcsc.co.uk
  * Description: Daventry Dun Cow Wolverhampton Wanderers FC Supporters Club — ticketing and club management.
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      DDCWWFCSC
  * Author URI:  https://ddcwwfcsc.co.uk
  * License:     GPL-2.0-or-later
