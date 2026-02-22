@@ -17,16 +17,23 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Install lftp
+        run: sudo apt-get install -y lftp
+
       - name: Deploy plugin
         run: |
-          rsync -avz --delete \
-            -e "ssh -p 65002 -vvv -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-            wp-content/plugins/ddcwwfcsc/ \
-            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:public_html/test/wp-content/plugins/ddcwwfcsc/
+          lftp -e "
+            set sftp:connect-program 'ssh -a -x -p 65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null';
+            connect sftp://${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }};
+            mirror --reverse --delete --verbose wp-content/plugins/ddcwwfcsc/ public_html/test/wp-content/plugins/ddcwwfcsc/;
+            bye
+          "
 
       - name: Deploy theme
         run: |
-          rsync -avz --delete \
-            -e "ssh -p 65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-            wp-content/themes/ddcwwfcsc-theme/ \
-            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:public_html/test/wp-content/themes/ddcwwfcsc-theme/
+          lftp -e "
+            set sftp:connect-program 'ssh -a -x -p 65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null';
+            connect sftp://${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }};
+            mirror --reverse --delete --verbose wp-content/themes/ddcwwfcsc-theme/ public_html/test/wp-content/themes/ddcwwfcsc-theme/;
+            bye
+          "
