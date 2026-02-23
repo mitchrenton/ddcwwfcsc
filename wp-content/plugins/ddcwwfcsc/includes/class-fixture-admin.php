@@ -217,6 +217,11 @@ class DDCWWFCSC_Fixture_Admin {
      * Render the Ticket Settings meta box.
      */
     public static function render_ticket_settings_box( $post ) {
+        if ( 'away' === get_post_meta( $post->ID, '_ddcwwfcsc_venue', true ) ) {
+            echo '<p class="description">' . esc_html__( 'Ticket settings are not applicable for away fixtures.', 'ddcwwfcsc' ) . '</p>';
+            return;
+        }
+
         $default_total = get_option( 'ddcwwfcsc_default_tickets', 8 );
         $default_max   = get_option( 'ddcwwfcsc_default_max_per_person', 2 );
 
@@ -281,6 +286,11 @@ class DDCWWFCSC_Fixture_Admin {
      * Render the On Sale toggle meta box.
      */
     public static function render_on_sale_box( $post ) {
+        if ( 'away' === get_post_meta( $post->ID, '_ddcwwfcsc_venue', true ) ) {
+            echo '<p class="description">' . esc_html__( 'Not applicable for away fixtures.', 'ddcwwfcsc' ) . '</p>';
+            return;
+        }
+
         $on_sale   = get_post_meta( $post->ID, '_ddcwwfcsc_on_sale', true );
         $remaining = get_post_meta( $post->ID, '_ddcwwfcsc_tickets_remaining', true );
         ?>
@@ -369,49 +379,54 @@ class DDCWWFCSC_Fixture_Admin {
             $venue = in_array( $_POST['ddcwwfcsc_venue'], array( 'home', 'away' ), true ) ? $_POST['ddcwwfcsc_venue'] : '';
             update_post_meta( $post_id, '_ddcwwfcsc_venue', $venue );
         }
-        // Save price category taxonomy term.
-        if ( isset( $_POST['ddcwwfcsc_price_category'] ) ) {
-            $price_cat_id = absint( $_POST['ddcwwfcsc_price_category'] );
-            if ( $price_cat_id && term_exists( $price_cat_id, 'ddcwwfcsc_price_category' ) ) {
-                wp_set_object_terms( $post_id, $price_cat_id, 'ddcwwfcsc_price_category' );
-            } else {
-                wp_set_object_terms( $post_id, array(), 'ddcwwfcsc_price_category' );
+        // Ticket fields are only relevant for home fixtures.
+        $is_away = isset( $_POST['ddcwwfcsc_venue'] ) && 'away' === $_POST['ddcwwfcsc_venue'];
+
+        if ( ! $is_away ) {
+            // Save price category taxonomy term.
+            if ( isset( $_POST['ddcwwfcsc_price_category'] ) ) {
+                $price_cat_id = absint( $_POST['ddcwwfcsc_price_category'] );
+                if ( $price_cat_id && term_exists( $price_cat_id, 'ddcwwfcsc_price_category' ) ) {
+                    wp_set_object_terms( $post_id, $price_cat_id, 'ddcwwfcsc_price_category' );
+                } else {
+                    wp_set_object_terms( $post_id, array(), 'ddcwwfcsc_price_category' );
+                }
             }
-        }
 
-        // Save ticket settings.
-        if ( isset( $_POST['ddcwwfcsc_total_tickets'] ) ) {
-            update_post_meta( $post_id, '_ddcwwfcsc_total_tickets', absint( $_POST['ddcwwfcsc_total_tickets'] ) );
-        }
-        if ( isset( $_POST['ddcwwfcsc_max_per_person'] ) ) {
-            update_post_meta( $post_id, '_ddcwwfcsc_max_per_person', absint( $_POST['ddcwwfcsc_max_per_person'] ) );
-        }
-
-        // Handle on-sale toggle.
-        $was_on_sale = (bool) get_post_meta( $post_id, '_ddcwwfcsc_on_sale', true );
-        $now_on_sale = ! empty( $_POST['ddcwwfcsc_on_sale'] );
-
-        // Validate: on-sale requires a price category.
-        if ( $now_on_sale ) {
-            $price_cat_terms = get_the_terms( $post_id, 'ddcwwfcsc_price_category' );
-            if ( ! $price_cat_terms || is_wp_error( $price_cat_terms ) ) {
-                $now_on_sale = false;
-                add_filter( 'redirect_post_location', function ( $location ) {
-                    return add_query_arg( 'ddcwwfcsc_notice', 'no_price_category', $location );
-                } );
+            // Save ticket settings.
+            if ( isset( $_POST['ddcwwfcsc_total_tickets'] ) ) {
+                update_post_meta( $post_id, '_ddcwwfcsc_total_tickets', absint( $_POST['ddcwwfcsc_total_tickets'] ) );
             }
-        }
-
-        if ( $now_on_sale && ! $was_on_sale ) {
-            // Set tickets remaining to total when toggling on.
-            $total = absint( $_POST['ddcwwfcsc_total_tickets'] ?? get_post_meta( $post_id, '_ddcwwfcsc_total_tickets', true ) );
-            if ( ! $total ) {
-                $total = (int) get_option( 'ddcwwfcsc_default_tickets', 8 );
+            if ( isset( $_POST['ddcwwfcsc_max_per_person'] ) ) {
+                update_post_meta( $post_id, '_ddcwwfcsc_max_per_person', absint( $_POST['ddcwwfcsc_max_per_person'] ) );
             }
-            update_post_meta( $post_id, '_ddcwwfcsc_tickets_remaining', $total );
-        }
 
-        update_post_meta( $post_id, '_ddcwwfcsc_on_sale', $now_on_sale );
+            // Handle on-sale toggle.
+            $was_on_sale = (bool) get_post_meta( $post_id, '_ddcwwfcsc_on_sale', true );
+            $now_on_sale = ! empty( $_POST['ddcwwfcsc_on_sale'] );
+
+            // Validate: on-sale requires a price category.
+            if ( $now_on_sale ) {
+                $price_cat_terms = get_the_terms( $post_id, 'ddcwwfcsc_price_category' );
+                if ( ! $price_cat_terms || is_wp_error( $price_cat_terms ) ) {
+                    $now_on_sale = false;
+                    add_filter( 'redirect_post_location', function ( $location ) {
+                        return add_query_arg( 'ddcwwfcsc_notice', 'no_price_category', $location );
+                    } );
+                }
+            }
+
+            if ( $now_on_sale && ! $was_on_sale ) {
+                // Set tickets remaining to total when toggling on.
+                $total = absint( $_POST['ddcwwfcsc_total_tickets'] ?? get_post_meta( $post_id, '_ddcwwfcsc_total_tickets', true ) );
+                if ( ! $total ) {
+                    $total = (int) get_option( 'ddcwwfcsc_default_tickets', 8 );
+                }
+                update_post_meta( $post_id, '_ddcwwfcsc_tickets_remaining', $total );
+            }
+
+            update_post_meta( $post_id, '_ddcwwfcsc_on_sale', $now_on_sale );
+        }
 
         // Auto-generate the post title.
         self::update_fixture_title( $post_id );
