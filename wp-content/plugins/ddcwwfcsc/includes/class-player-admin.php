@@ -134,16 +134,9 @@ class DDCWWFCSC_Player_Admin {
 	 * @return array Modified columns.
 	 */
 	public static function add_columns( $columns ) {
-		$new = array();
-		foreach ( $columns as $key => $label ) {
-			if ( 'title' === $key ) {
-				$new['photo'] = __( 'Photo', 'ddcwwfcsc' );
-			}
-			$new[ $key ] = $label;
-		}
-		$new['number']   = __( '#', 'ddcwwfcsc' );
-		$new['position'] = __( 'Position', 'ddcwwfcsc' );
-		return $new;
+		$columns['number']   = __( '#', 'ddcwwfcsc' );
+		$columns['position'] = __( 'Position', 'ddcwwfcsc' );
+		return $columns;
 	}
 
 	/**
@@ -154,11 +147,6 @@ class DDCWWFCSC_Player_Admin {
 	 */
 	public static function render_columns( $column, $post_id ) {
 		switch ( $column ) {
-			case 'photo':
-				$thumb = get_the_post_thumbnail( $post_id, array( 40, 40 ) );
-				echo $thumb ? $thumb : '—';
-				break;
-
 			case 'number':
 				$num = get_post_meta( $post_id, '_ddcwwfcsc_player_number', true );
 				echo $num ? esc_html( $num ) : '—';

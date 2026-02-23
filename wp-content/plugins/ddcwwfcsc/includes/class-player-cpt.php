@@ -44,7 +44,7 @@ class DDCWWFCSC_Player_CPT {
 				'show_ui'         => true,
 				'show_in_menu'    => 'edit.php?post_type=ddcwwfcsc_fixture',
 				'show_in_rest'    => true,
-				'supports'        => array( 'title', 'thumbnail' ),
+				'supports'        => array( 'title' ),
 				'capability_type' => 'post',
 				'map_meta_cap'    => true,
 				'has_archive'     => false,
@@ -131,7 +131,6 @@ class DDCWWFCSC_Player_CPT {
 			'name'     => get_the_title( $post_id ),
 			'number'   => (int) get_post_meta( $post_id, '_ddcwwfcsc_player_number', true ),
 			'position' => get_post_meta( $post_id, '_ddcwwfcsc_player_position', true ),
-			'photo'    => get_the_post_thumbnail_url( $post_id, 'thumbnail' ) ?: '',
 		);
 	}
 }
