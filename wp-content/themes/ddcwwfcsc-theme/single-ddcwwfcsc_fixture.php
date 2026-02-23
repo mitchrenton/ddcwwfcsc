@@ -229,6 +229,12 @@ if ( $is_home ) {
 						<div class="fixture-cta">
 							<a href="<?php echo esc_url( get_permalink( $beerwolf_post->ID ) ); ?>" class="btn btn--primary"><?php esc_html_e( 'View Pub Guide', 'ddcwwfcsc-theme' ); ?></a>
 						</div>
+					<?php else : ?>
+						<div class="fixture-not-on-sale">
+							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+							<h2><?php esc_html_e( 'Pub Guide Coming Soon', 'ddcwwfcsc-theme' ); ?></h2>
+							<p><?php printf( esc_html__( "We haven't added a pub guide for %s yet. Check back closer to the match.", 'ddcwwfcsc-theme' ), esc_html( $opponent_name ) ); ?></p>
+						</div>
 					<?php endif; ?>
 				<?php endif; ?>
 
