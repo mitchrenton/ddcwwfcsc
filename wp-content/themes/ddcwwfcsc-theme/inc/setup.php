@@ -26,6 +26,10 @@ function ddcwwfcsc_theme_setup() {
 	add_image_size( 'ddcwwfcsc-card', 600, 400, true );
 }
 
+add_filter( 'show_admin_bar', function( $show ) {
+	return current_user_can( 'manage_options' ) ? $show : false;
+} );
+
 add_action( 'widgets_init', 'ddcwwfcsc_theme_widgets' );
 
 function ddcwwfcsc_theme_widgets() {
