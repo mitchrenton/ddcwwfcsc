@@ -204,7 +204,7 @@ class DDCWWFCSC_Member_Admin {
 									<?php if ( ! $paid_season ) : ?>
 										<span style="color:#d63638"><?php esc_html_e( 'Not paid', 'ddcwwfcsc' ); ?></span>
 									<?php elseif ( $is_current ) : ?>
-										<span style="color:#00a32a"><?php echo esc_html( $paid_season ); ?></span>
+										<span style="color:#00a32a"><?php echo esc_html( 'Paid: ' . $paid_season ); ?></span>
 									<?php else : ?>
 										<span style="color:#d63638"><?php esc_html_e( 'Expired', 'ddcwwfcsc' ); ?></span>
 									<?php endif; ?>
@@ -228,7 +228,7 @@ class DDCWWFCSC_Member_Admin {
 										<input type="text" name="paid_season" value="<?php echo esc_attr( $paid_season ); ?>" placeholder="e.g. 2024/25" style="padding:2px 6px;width:90px">
 										<?php endif; ?>
 										<button type="submit" class="button button-small"><?php esc_html_e( 'Save', 'ddcwwfcsc' ); ?></button>
-										<?php $current_season = get_option( 'ddcwwfcsc_current_season', '' ); if ( $current_season ) : ?>
+										<?php $current_season = get_option( 'ddcwwfcsc_current_season', '' ); if ( $current_season && $paid_season !== $current_season ) : ?>
 										<button type="submit" name="paid_season" value="<?php echo esc_attr( $current_season ); ?>" class="button button-small button-primary"><?php esc_html_e( 'Mark as Paid', 'ddcwwfcsc' ); ?></button>
 										<?php endif; ?>
 										<?php if ( $paid_season ) : ?>
