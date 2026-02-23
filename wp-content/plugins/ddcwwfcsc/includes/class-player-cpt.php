@@ -43,7 +43,7 @@ class DDCWWFCSC_Player_CPT {
 				'public'          => false,
 				'show_ui'         => true,
 				'show_in_menu'    => 'edit.php?post_type=ddcwwfcsc_fixture',
-				'show_in_rest'    => false,
+				'show_in_rest'    => true,
 				'supports'        => array( 'title', 'thumbnail' ),
 				'capability_type' => 'post',
 				'map_meta_cap'    => true,
@@ -64,7 +64,7 @@ class DDCWWFCSC_Player_CPT {
 			array(
 				'type'              => 'integer',
 				'single'            => true,
-				'show_in_rest'      => false,
+				'show_in_rest'      => true,
 				'default'           => 0,
 				'sanitize_callback' => 'absint',
 				'auth_callback'     => function() {
@@ -79,7 +79,7 @@ class DDCWWFCSC_Player_CPT {
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'show_in_rest'      => false,
+				'show_in_rest'      => true,
 				'default'           => '',
 				'sanitize_callback' => array( __CLASS__, 'sanitize_position' ),
 				'auth_callback'     => function() {

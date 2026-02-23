@@ -1,0 +1,37 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "ddcwwfcsc/gallery",
+    "version": "1.0.0",
+    "title": "DDCWWFCSC Gallery",
+    "category": "media",
+    "icon": "format-gallery",
+    "description": "A responsive image gallery with lightbox viewer.",
+    "textdomain": "ddcwwfcsc",
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php",
+    "attributes": {
+        "images": {
+            "type": "array",
+            "default": [],
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id":      { "type": "number" },
+                    "url":     { "type": "string" },
+                    "fullUrl": { "type": "string" },
+                    "alt":     { "type": "string", "default": "" },
+                    "caption": { "type": "string", "default": "" }
+                }
+            }
+        },
+        "columns": {
+            "type": "number",
+            "default": 3
+        }
+    },
+    "supports": {
+        "html": false,
+        "align": [ "wide", "full" ]
+    }
+}

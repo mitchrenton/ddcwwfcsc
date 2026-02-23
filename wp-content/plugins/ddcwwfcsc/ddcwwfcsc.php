@@ -111,7 +111,7 @@ add_action( 'admin_init', array( 'DDCWWFCSC_Activator', 'maybe_upgrade_schema' )
  * Register the Gutenberg block.
  */
 function ddcwwfcsc_register_blocks() {
-    $blocks = array( 'tickets', 'beerwolf', 'events', 'honorary-members', 'bulletins' );
+    $blocks = array( 'tickets', 'beerwolf', 'events', 'honorary-members', 'bulletins', 'gallery' );
     foreach ( $blocks as $block ) {
         $dir    = DDCWWFCSC_PLUGIN_DIR . 'blocks/' . $block;
         $result = register_block_type( $dir );
