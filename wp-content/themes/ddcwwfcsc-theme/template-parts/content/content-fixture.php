@@ -77,9 +77,6 @@ if ( $is_home ) {
 		<?php if ( $competition ) : ?>
 			<span class="fixture-list__competition"><?php echo esc_html( $competition ); ?></span>
 		<?php endif; ?>
-	</div>
-
-	<div class="fixture-list__action">
 		<?php ddcwwfcsc_fixture_badges( $post_id ); ?>
 	</div>
 </li>

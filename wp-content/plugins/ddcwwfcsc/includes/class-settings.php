@@ -218,6 +218,7 @@ class DDCWWFCSC_Settings {
                     <?php wp_nonce_field( 'ddcwwfcsc_sync_now', 'ddcwwfcsc_sync_nonce' ); ?>
                     <?php submit_button( __( 'Sync Now', 'ddcwwfcsc' ), 'secondary', 'submit', false ); ?>
                 </form>
+                <?php self::render_sync_log(); ?>
             <?php endif; ?>
         </div>
         <?php
@@ -547,6 +548,42 @@ class DDCWWFCSC_Settings {
         ?>
         <input type="text" name="ddcwwfcsc_tsdb_team_name" value="<?php echo esc_attr( $value ); ?>" class="regular-text">
         <p class="description"><?php esc_html_e( 'Must match the team name as it appears on TheSportsDB. Default: Wolverhampton Wanderers.', 'ddcwwfcsc' ); ?></p>
+        <?php
+    }
+
+    /**
+     * Render the last fixture sync log beneath the Sync Now button.
+     */
+    private static function render_sync_log() {
+        $log = get_option( 'ddcwwfcsc_last_sync_log', null );
+        if ( ! $log ) {
+            return;
+        }
+
+        $time    = isset( $log['time'] ) ? get_date_from_gmt( $log['time'], get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) ) : '—';
+        $error   = $log['error'] ?? '';
+        $by_comp = $log['by_comp'] ?? array();
+        ?>
+        <h3><?php esc_html_e( 'Last Sync Log', 'ddcwwfcsc' ); ?></h3>
+        <p>
+            <strong><?php esc_html_e( 'Run at:', 'ddcwwfcsc' ); ?></strong> <?php echo esc_html( $time ); ?>&emsp;
+            <strong><?php esc_html_e( 'Created:', 'ddcwwfcsc' ); ?></strong> <?php echo (int) ( $log['created'] ?? 0 ); ?>&emsp;
+            <strong><?php esc_html_e( 'Updated:', 'ddcwwfcsc' ); ?></strong> <?php echo (int) ( $log['updated'] ?? 0 ); ?>&emsp;
+            <strong><?php esc_html_e( 'Skipped:', 'ddcwwfcsc' ); ?></strong> <?php echo (int) ( $log['skipped'] ?? 0 ); ?>
+        </p>
+        <?php if ( $error ) : ?>
+            <p style="color:#b32d2e;"><strong><?php esc_html_e( 'Error:', 'ddcwwfcsc' ); ?></strong> <?php echo esc_html( $error ); ?></p>
+        <?php endif; ?>
+        <?php if ( ! empty( $by_comp ) ) : ?>
+            <p><strong><?php esc_html_e( 'Matches by competition found in API response:', 'ddcwwfcsc' ); ?></strong></p>
+            <ul style="list-style:disc;padding-left:1.5em;margin-top:0;">
+                <?php foreach ( $by_comp as $comp => $count ) : ?>
+                    <li><?php echo esc_html( $comp ) . ': ' . (int) $count; ?></li>
+                <?php endforeach; ?>
+            </ul>
+        <?php else : ?>
+            <p><?php esc_html_e( 'No competitions found in the last sync — the API returned no matches.', 'ddcwwfcsc' ); ?></p>
+        <?php endif; ?>
         <?php
     }
 

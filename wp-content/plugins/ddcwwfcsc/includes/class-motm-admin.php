@@ -1,6 +1,8 @@
 <?php
 /**
  * MOTM admin — meta boxes and standings page.
+ *
+ * @package DDCWWFCSC
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -13,10 +15,9 @@ class DDCWWFCSC_MOTM_Admin {
      * Initialize hooks.
      */
     public static function init() {
-        add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
-        add_action( 'save_post_ddcwwfcsc_fixture', array( __CLASS__, 'save_lineup_override' ) );
-        add_action( 'admin_menu', array( __CLASS__, 'add_standings_page' ) );
-        add_action( 'admin_post_ddcwwfcsc_fetch_lineup', array( __CLASS__, 'handle_fetch_lineup' ) );
+        add_action( 'add_meta_boxes',               array( __CLASS__, 'add_meta_boxes' ) );
+        add_action( 'save_post_ddcwwfcsc_fixture',  array( __CLASS__, 'save_lineup' ) );
+        add_action( 'admin_menu',                   array( __CLASS__, 'add_standings_page' ) );
     }
 
     /**
@@ -43,128 +44,143 @@ class DDCWWFCSC_MOTM_Admin {
     }
 
     /**
-     * Render the lineup meta box.
+     * Render the squad picker lineup meta box.
      *
      * @param WP_Post $post Post object.
      */
     public static function render_lineup_meta_box( $post ) {
         wp_nonce_field( 'ddcwwfcsc_motm_lineup', 'ddcwwfcsc_motm_lineup_nonce' );
 
-        // Show fetch result notice.
-        if ( isset( $_GET['motm_fetch'] ) ) {
-            if ( 'ok' === $_GET['motm_fetch'] ) {
-                echo '<div class="notice notice-success inline" style="margin:0 0 1em;"><p>' . esc_html__( 'Lineup fetched successfully from TheSportsDB.', 'ddcwwfcsc' ) . '</p></div>';
-            } else {
-                echo '<div class="notice notice-error inline" style="margin:0 0 1em;"><p>' . esc_html__( 'Lineup fetch failed. Check the error log for details, or enter the lineup manually below.', 'ddcwwfcsc' ) . '</p></div>';
-            }
-        }
-
-        $api_lineup = get_post_meta( $post->ID, '_ddcwwfcsc_motm_lineup', true );
-        $override   = get_post_meta( $post->ID, '_ddcwwfcsc_motm_lineup_override', true );
-        $fetched    = get_post_meta( $post->ID, '_ddcwwfcsc_motm_lineup_fetched', true );
         $status     = get_post_meta( $post->ID, '_ddcwwfcsc_fd_status', true );
+        $lineup_ids = get_post_meta( $post->ID, '_ddcwwfcsc_motm_lineup_ids', true );
+        $lineup_ids = is_array( $lineup_ids ) ? $lineup_ids : array();
 
-        // Show API lineup if available.
-        if ( ! empty( $api_lineup ) && is_array( $api_lineup ) ) {
-            echo '<h4 style="margin-top:0;">' . esc_html__( 'API Lineup', 'ddcwwfcsc' ) . '</h4>';
-            echo '<table class="widefat fixed striped" style="margin-bottom:1em;">';
-            echo '<thead><tr><th style="width:60px;">#</th><th>' . esc_html__( 'Player', 'ddcwwfcsc' ) . '</th><th style="width:80px;">' . esc_html__( 'Type', 'ddcwwfcsc' ) . '</th></tr></thead><tbody>';
-            foreach ( $api_lineup as $player ) {
-                printf(
-                    '<tr><td>%d</td><td>%s</td><td>%s</td></tr>',
-                    (int) $player['number'],
-                    esc_html( $player['name'] ),
-                    ! empty( $player['starter'] ) ? esc_html__( 'Starter', 'ddcwwfcsc' ) : esc_html__( 'Sub', 'ddcwwfcsc' )
-                );
+        // Build a keyed lookup: player_id => 'starter' | 'sub'.
+        $selection = array();
+        foreach ( $lineup_ids as $entry ) {
+            $pid = absint( $entry['player_id'] ?? 0 );
+            if ( $pid ) {
+                $selection[ $pid ] = (bool) ( $entry['starter'] ?? false ) ? 'starter' : 'sub';
             }
-            echo '</tbody></table>';
-        } elseif ( 'FINISHED' === $status ) {
-            if ( $fetched ) {
-                echo '<p>' . esc_html__( 'API lineup fetch attempted but returned no data.', 'ddcwwfcsc' ) . '</p>';
-            } else {
-                echo '<p>' . esc_html__( 'Lineup not yet fetched from API. It will be fetched automatically, or enter manually below.', 'ddcwwfcsc' ) . '</p>';
-            }
-        } else {
-            echo '<p>' . esc_html__( 'Lineup will be fetched automatically when this match finishes.', 'ddcwwfcsc' ) . '</p>';
         }
 
-        // Fetch Lineup button — available for any FINISHED match (TheSportsDB needs no API key).
-        if ( 'FINISHED' === $status ) {
-            $fetch_url = wp_nonce_url(
-                add_query_arg(
-                    array(
-                        'action'  => 'ddcwwfcsc_fetch_lineup',
-                        'post_id' => $post->ID,
-                    ),
-                    admin_url( 'admin-post.php' )
-                ),
-                'ddcwwfcsc_fetch_lineup_' . $post->ID
-            );
-            printf(
-                '<p><a href="%s" class="button button-secondary">%s</a></p>',
-                esc_url( $fetch_url ),
-                $fetched
-                    ? esc_html__( 'Re-fetch Lineup from TheSportsDB', 'ddcwwfcsc' )
-                    : esc_html__( 'Fetch Lineup Now', 'ddcwwfcsc' )
-            );
+        $squad = DDCWWFCSC_Player_CPT::get_squad();
+
+        if ( empty( $squad ) ) {
+            echo '<p>' . esc_html__( 'No players in the squad yet. Add players under Fixtures → Squad.', 'ddcwwfcsc' ) . '</p>';
+            return;
         }
 
-        // Manual override textarea.
-        $override_text = '';
-        if ( ! empty( $override ) && is_array( $override ) ) {
-            $lines = array();
-            foreach ( $override as $player ) {
-                $lines[] = $player['number'] . ' ' . $player['name'];
-            }
-            $override_text = implode( "\n", $lines );
+        if ( 'FINISHED' !== $status ) {
+            echo '<p class="description">' . esc_html__( 'You can pre-select the lineup before the match, or fill it in once the match is finished.', 'ddcwwfcsc' ) . '</p>';
         }
+        ?>
+        <p class="description" style="margin-bottom:0.75em;">
+            <?php esc_html_e( 'Select Starter or Sub for each player who appeared. Leave blank for players who did not play. You can include more than 11 to cover all substitutes used.', 'ddcwwfcsc' ); ?>
+        </p>
 
-        echo '<h4>' . esc_html__( 'Manual Override', 'ddcwwfcsc' ) . '</h4>';
-        echo '<p class="description">' . esc_html__( 'One player per line: "{number} {name}". If filled, this overrides the API lineup for voting.', 'ddcwwfcsc' ) . '</p>';
-        printf(
-            '<textarea name="ddcwwfcsc_motm_lineup_override" rows="12" class="large-text" style="font-family:monospace;">%s</textarea>',
-            esc_textarea( $override_text )
-        );
+        <table class="widefat fixed striped">
+            <thead>
+                <tr>
+                    <th style="width:40px;"><?php esc_html_e( '#', 'ddcwwfcsc' ); ?></th>
+                    <th><?php esc_html_e( 'Player', 'ddcwwfcsc' ); ?></th>
+                    <th style="width:50px;"><?php esc_html_e( 'Pos', 'ddcwwfcsc' ); ?></th>
+                    <th style="width:60px; text-align:center;">—</th>
+                    <th style="width:70px; text-align:center;"><?php esc_html_e( 'Starter', 'ddcwwfcsc' ); ?></th>
+                    <th style="width:60px; text-align:center;"><?php esc_html_e( 'Sub', 'ddcwwfcsc' ); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ( $squad as $player ) :
+                    $pid      = $player->ID;
+                    $data     = DDCWWFCSC_Player_CPT::get_player_data( $pid );
+                    $selected = $selection[ $pid ] ?? '';
+                ?>
+                    <tr>
+                        <td><?php echo esc_html( $data['number'] ?: '—' ); ?></td>
+                        <td><?php echo esc_html( $data['name'] ); ?></td>
+                        <td><?php echo esc_html( $data['position'] ); ?></td>
+                        <td style="text-align:center;">
+                            <input type="radio"
+                                   name="ddcwwfcsc_lineup[<?php echo esc_attr( $pid ); ?>]"
+                                   value=""
+                                   <?php checked( $selected, '' ); ?>>
+                        </td>
+                        <td style="text-align:center;">
+                            <input type="radio"
+                                   name="ddcwwfcsc_lineup[<?php echo esc_attr( $pid ); ?>]"
+                                   value="starter"
+                                   <?php checked( $selected, 'starter' ); ?>>
+                        </td>
+                        <td style="text-align:center;">
+                            <input type="radio"
+                                   name="ddcwwfcsc_lineup[<?php echo esc_attr( $pid ); ?>]"
+                                   value="sub"
+                                   <?php checked( $selected, 'sub' ); ?>>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php
     }
 
     /**
-     * Save the manual lineup override.
+     * Save the squad-based lineup selection.
      *
      * @param int $post_id Post ID.
      */
-    public static function save_lineup_override( $post_id ) {
+    public static function save_lineup( $post_id ) {
         if ( ! isset( $_POST['ddcwwfcsc_motm_lineup_nonce'] ) ) {
             return;
         }
-
         if ( ! wp_verify_nonce( $_POST['ddcwwfcsc_motm_lineup_nonce'], 'ddcwwfcsc_motm_lineup' ) ) {
             return;
         }
-
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
             return;
         }
-
         if ( ! current_user_can( 'edit_post', $post_id ) ) {
             return;
         }
 
-        $raw = isset( $_POST['ddcwwfcsc_motm_lineup_override'] ) ? sanitize_textarea_field( $_POST['ddcwwfcsc_motm_lineup_override'] ) : '';
+        $raw     = isset( $_POST['ddcwwfcsc_lineup'] ) ? (array) $_POST['ddcwwfcsc_lineup'] : array();
+        $entries = array();
 
-        if ( empty( trim( $raw ) ) ) {
-            delete_post_meta( $post_id, '_ddcwwfcsc_motm_lineup_override' );
-        } else {
-            $players = DDCWWFCSC_MOTM_Lineup::parse_manual_lineup( $raw );
-            if ( ! empty( $players ) ) {
-                $had_lineup = (bool) get_post_meta( $post_id, '_ddcwwfcsc_motm_lineup_override', true );
-                update_post_meta( $post_id, '_ddcwwfcsc_motm_lineup_override', $players );
+        foreach ( $raw as $player_id => $role ) {
+            $player_id = absint( $player_id );
+            $role      = sanitize_key( $role ); // 'starter', 'sub', or ''
 
-                // Fire the lineup-ready action if this is the first time a lineup
-                // has been set for a finished match (so the vote reminder goes out).
-                if ( ! $had_lineup && 'FINISHED' === get_post_meta( $post_id, '_ddcwwfcsc_fd_status', true ) ) {
-                    do_action( 'ddcwwfcsc_motm_lineup_ready', $post_id );
-                }
+            if ( ! $player_id || ! in_array( $role, array( 'starter', 'sub' ), true ) ) {
+                continue;
             }
+
+            // Confirm it's actually a player post.
+            if ( 'ddcwwfcsc_player' !== get_post_type( $player_id ) ) {
+                continue;
+            }
+
+            $entries[] = array(
+                'player_id' => $player_id,
+                'starter'   => ( 'starter' === $role ),
+            );
+        }
+
+        $had_lineup = ! empty( get_post_meta( $post_id, '_ddcwwfcsc_motm_lineup_ids', true ) );
+
+        if ( empty( $entries ) ) {
+            delete_post_meta( $post_id, '_ddcwwfcsc_motm_lineup_ids' );
+        } else {
+            update_post_meta( $post_id, '_ddcwwfcsc_motm_lineup_ids', $entries );
+        }
+
+        // Fire vote reminder on first lineup save for a finished fixture.
+        if (
+            ! empty( $entries ) &&
+            ! $had_lineup &&
+            'FINISHED' === get_post_meta( $post_id, '_ddcwwfcsc_fd_status', true )
+        ) {
+            do_action( 'ddcwwfcsc_motm_lineup_ready', $post_id );
         }
     }
 
@@ -201,32 +217,6 @@ class DDCWWFCSC_MOTM_Admin {
             );
         }
         echo '</tbody></table>';
-    }
-
-    /**
-     * Handle the "Fetch Lineup Now" admin POST action.
-     */
-    public static function handle_fetch_lineup() {
-        $post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
-
-        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
-            wp_die( __( 'You do not have permission to do this.', 'ddcwwfcsc' ) );
-        }
-
-        check_admin_referer( 'ddcwwfcsc_fetch_lineup_' . $post_id );
-
-        // Clear the fetched flag so it can re-fetch.
-        delete_post_meta( $post_id, '_ddcwwfcsc_motm_lineup_fetched' );
-
-        $success = DDCWWFCSC_MOTM_Lineup::fetch_and_store_lineup( $post_id );
-
-        $redirect = add_query_arg(
-            array( 'motm_fetch' => $success ? 'ok' : 'fail' ),
-            get_edit_post_link( $post_id, 'raw' )
-        );
-
-        wp_safe_redirect( $redirect );
-        exit;
     }
 
     /**

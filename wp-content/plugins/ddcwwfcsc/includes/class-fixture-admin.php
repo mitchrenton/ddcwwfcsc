@@ -18,8 +18,10 @@ class DDCWWFCSC_Fixture_Admin {
         add_filter( 'manage_ddcwwfcsc_fixture_posts_columns', array( __CLASS__, 'add_columns' ) );
         add_action( 'manage_ddcwwfcsc_fixture_posts_custom_column', array( __CLASS__, 'render_columns' ), 10, 2 );
         add_filter( 'manage_edit-ddcwwfcsc_fixture_sortable_columns', array( __CLASS__, 'sortable_columns' ) );
+        add_action( 'restrict_manage_posts', array( __CLASS__, 'render_season_filter' ) );
         add_action( 'restrict_manage_posts', array( __CLASS__, 'render_on_sale_filter' ) );
         add_action( 'pre_get_posts', array( __CLASS__, 'apply_on_sale_filter' ) );
+        add_action( 'pre_get_posts', array( __CLASS__, 'apply_admin_sorting' ) );
 
         // Force classic editor for fixtures — block editor hides classic meta boxes.
         add_filter( 'use_block_editor_for_post_type', array( __CLASS__, 'disable_block_editor' ), 10, 2 );
@@ -538,6 +540,60 @@ class DDCWWFCSC_Fixture_Admin {
     public static function sortable_columns( $columns ) {
         $columns['match_date'] = 'match_date';
         return $columns;
+    }
+
+    /**
+     * Handle sorting by match date in the admin list table.
+     */
+    public static function apply_admin_sorting( $query ) {
+        if ( ! is_admin() || ! $query->is_main_query() ) {
+            return;
+        }
+
+        $screen = get_current_screen();
+        if ( ! $screen || 'edit-ddcwwfcsc_fixture' !== $screen->id ) {
+            return;
+        }
+
+        if ( isset( $_GET['orderby'] ) && 'match_date' === $_GET['orderby'] ) {
+            $query->set( 'meta_key', '_ddcwwfcsc_match_date' );
+            $query->set( 'orderby', 'meta_value' );
+        }
+    }
+
+    /**
+     * Render the season filter dropdown above the fixture list.
+     *
+     * WordPress automatically applies the tax_query when the select name matches
+     * the taxonomy slug (its registered query_var).
+     */
+    public static function render_season_filter( $post_type ) {
+        if ( 'ddcwwfcsc_fixture' !== $post_type ) {
+            return;
+        }
+
+        $seasons = get_terms( array(
+            'taxonomy'   => 'ddcwwfcsc_season',
+            'hide_empty' => false,
+            'orderby'    => 'name',
+            'order'      => 'DESC',
+        ) );
+
+        if ( is_wp_error( $seasons ) || empty( $seasons ) ) {
+            return;
+        }
+
+        $selected = isset( $_GET['ddcwwfcsc_season'] ) ? sanitize_text_field( $_GET['ddcwwfcsc_season'] ) : '';
+        ?>
+        <select name="ddcwwfcsc_season">
+            <option value=""><?php esc_html_e( 'All seasons', 'ddcwwfcsc' ); ?></option>
+            <?php foreach ( $seasons as $season ) : ?>
+                <option value="<?php echo esc_attr( $season->slug ); ?>" <?php selected( $selected, $season->slug ); ?>>
+                    <?php echo esc_html( $season->name ); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <?php
     }
 
     /**

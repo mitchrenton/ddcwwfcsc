@@ -50,6 +50,8 @@ require_once DDCWWFCSC_PLUGIN_DIR . 'includes/class-bulletin-front.php';
 require_once DDCWWFCSC_PLUGIN_DIR . 'includes/class-guest-author.php';
 require_once DDCWWFCSC_PLUGIN_DIR . 'includes/class-custom-avatar.php';
 require_once DDCWWFCSC_PLUGIN_DIR . 'includes/class-fixture-sync.php';
+require_once DDCWWFCSC_PLUGIN_DIR . 'includes/class-player-cpt.php';
+require_once DDCWWFCSC_PLUGIN_DIR . 'includes/class-player-admin.php';
 require_once DDCWWFCSC_PLUGIN_DIR . 'includes/class-motm-votes.php';
 require_once DDCWWFCSC_PLUGIN_DIR . 'includes/class-motm-lineup.php';
 require_once DDCWWFCSC_PLUGIN_DIR . 'includes/class-motm-admin.php';
@@ -88,6 +90,8 @@ function ddcwwfcsc_init() {
     DDCWWFCSC_Guest_Author::init();
     DDCWWFCSC_Custom_Avatar::init();
     DDCWWFCSC_Fixture_Sync::init();
+    DDCWWFCSC_Player_CPT::init();
+    DDCWWFCSC_Player_Admin::init();
     DDCWWFCSC_MOTM_Lineup::init();
     DDCWWFCSC_MOTM_Admin::init();
     DDCWWFCSC_MOTM_Front::init();

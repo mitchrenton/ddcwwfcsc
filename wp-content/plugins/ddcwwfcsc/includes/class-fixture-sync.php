@@ -15,15 +15,17 @@ class DDCWWFCSC_Fixture_Sync {
     const API_BASE = 'https://api.football-data.org/v4';
 
     /**
-     * Competitions to sync (code => label).
-     */
-    /**
-     * Competitions to sync (API code => taxonomy term name).
+     * Known competition codes → taxonomy term names.
+     * Used to map API codes to friendly labels; any unknown code falls back
+     * to the name string returned by the API itself.
      */
     const COMPETITIONS = array(
         'PL'  => 'Premier League',
         'FAC' => 'FA Cup',
         'ELC' => 'EFL Cup',
+        'CL'  => 'Champions League',
+        'EL'  => 'Europa League',
+        'ECL' => 'Conference League',
     );
 
     /**
@@ -101,41 +103,60 @@ class DDCWWFCSC_Fixture_Sync {
 
         $team_id = (int) get_option( 'ddcwwfcsc_fd_team_id', 76 );
 
-        $created = 0;
-        $updated = 0;
-        $skipped = 0;
+        $created     = 0;
+        $updated     = 0;
+        $skipped     = 0;
+        $by_comp     = array(); // competition label => count for the sync log.
 
-        foreach ( array_keys( self::COMPETITIONS ) as $code ) {
-            $matches = self::fetch_matches( $code, $api_key, $team_id );
+        // Fetch all of the team's matches in one request (no competition filter).
+        // This avoids 403s on the free tier that occur when explicitly requesting
+        // cup competition endpoints — the team endpoint returns all competitions.
+        $matches = self::fetch_all_matches( $api_key, $team_id );
 
-            // null = hard error (429 etc.) — abort entire sync.
-            if ( null === $matches ) {
-                error_log( '[DDCWWFCSC Sync] Aborting sync due to API error on ' . $code . '.' );
-                return array( 'created' => $created, 'updated' => $updated, 'skipped' => $skipped, 'error' => $code );
-            }
+        if ( null === $matches ) {
+            error_log( '[DDCWWFCSC Sync] Aborting sync — could not fetch matches.' );
+            update_option( 'ddcwwfcsc_last_sync_log', array(
+                'time'    => gmdate( 'c' ),
+                'error'   => 'fetch_failed',
+                'by_comp' => array(),
+            ) );
+            return array( 'created' => $created, 'updated' => $updated, 'skipped' => $skipped, 'error' => 'fetch_failed' );
+        }
 
-            // Empty array = no matches or 403 (competition not on free tier).
-            if ( empty( $matches ) ) {
-                continue;
-            }
+        foreach ( $matches as $match ) {
+            // Tally raw competition counts before processing.
+            $comp_label = $match['competition']['name'] ?? ( $match['competition']['code'] ?? 'Unknown' );
+            $by_comp[ $comp_label ] = ( $by_comp[ $comp_label ] ?? 0 ) + 1;
 
-            foreach ( $matches as $match ) {
-                $result = self::process_match( $match, $team_id, $code );
-                if ( 'created' === $result ) {
-                    $created++;
-                } elseif ( 'updated' === $result ) {
-                    $updated++;
-                } else {
-                    $skipped++;
-                }
+            $result = self::process_match( $match, $team_id );
+            if ( 'created' === $result ) {
+                $created++;
+            } elseif ( 'updated' === $result ) {
+                $updated++;
+            } else {
+                $skipped++;
             }
         }
 
         error_log( sprintf(
-            '[DDCWWFCSC Sync] Complete — %d created, %d updated, %d skipped.',
+            '[DDCWWFCSC Sync] Complete — %d created, %d updated, %d skipped. Competitions: %s',
             $created,
             $updated,
-            $skipped
+            $skipped,
+            implode( ', ', array_map(
+                function ( $name, $count ) { return $name . ' (' . $count . ')'; },
+                array_keys( $by_comp ),
+                $by_comp
+            ) )
+        ) );
+
+        update_option( 'ddcwwfcsc_last_sync_log', array(
+            'time'    => gmdate( 'c' ),
+            'error'   => '',
+            'created' => $created,
+            'updated' => $updated,
+            'skipped' => $skipped,
+            'by_comp' => $by_comp,
         ) );
 
         return array( 'created' => $created, 'updated' => $updated, 'skipped' => $skipped, 'error' => '' );
@@ -211,14 +232,64 @@ class DDCWWFCSC_Fixture_Sync {
     }
 
     /**
+     * Fetch all matches for the team across every competition (no competition filter).
+     *
+     * Using the unfiltered endpoint lets the free tier return cup fixtures that
+     * would 403 if requested by competition code directly.
+     *
+     * @param string $api_key API token.
+     * @param int    $team_id Football-data.org team ID.
+     * @return array|null Array of matches, or null on hard error.
+     */
+    public static function fetch_all_matches( $api_key, $team_id ) {
+        $url = sprintf(
+            '%s/teams/%d/matches?status=SCHEDULED,POSTPONED,FINISHED&dateFrom=%s&dateTo=%s',
+            self::API_BASE,
+            $team_id,
+            '2025-08-01',
+            '2026-07-31'
+        );
+
+        $response = wp_remote_get( $url, array(
+            'headers' => array( 'X-Auth-Token' => $api_key ),
+            'timeout' => 15,
+        ) );
+
+        if ( is_wp_error( $response ) ) {
+            error_log( '[DDCWWFCSC Sync] HTTP error fetching all matches: ' . $response->get_error_message() );
+            return null;
+        }
+
+        $status_code = wp_remote_retrieve_response_code( $response );
+
+        if ( 429 === $status_code ) {
+            error_log( '[DDCWWFCSC Sync] Rate limited (429) fetching all matches.' );
+            return null;
+        }
+
+        if ( 200 !== $status_code ) {
+            error_log( '[DDCWWFCSC Sync] Unexpected status ' . $status_code . ' fetching all matches.' );
+            return null;
+        }
+
+        $body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+        if ( ! is_array( $body ) || ! isset( $body['matches'] ) ) {
+            error_log( '[DDCWWFCSC Sync] Invalid response body fetching all matches.' );
+            return null;
+        }
+
+        return $body['matches'];
+    }
+
+    /**
      * Process a single match — create or update a fixture post.
      *
-     * @param array  $match   Match data from the API.
-     * @param int    $team_id Our team's football-data.org ID.
-     * @param string $code    Competition code.
+     * @param array $match   Match data from the API.
+     * @param int   $team_id Our team's football-data.org ID.
      * @return string 'created', 'updated', or 'skipped'.
      */
-    public static function process_match( $match, $team_id, $code ) {
+    public static function process_match( $match, $team_id ) {
         $status = $match['status'] ?? '';
 
         // Skip cancelled matches.
@@ -230,6 +301,10 @@ class DDCWWFCSC_Fixture_Sync {
         if ( ! $fd_id ) {
             return 'skipped';
         }
+
+        // Extract competition from match data.
+        $code          = $match['competition']['code'] ?? '';
+        $comp_api_name = $match['competition']['name'] ?? '';
 
         // Determine venue.
         $home_id = (int) ( $match['homeTeam']['id'] ?? 0 );
@@ -278,7 +353,7 @@ class DDCWWFCSC_Fixture_Sync {
             }
 
             // Assign competition and season terms.
-            self::assign_competition_term( $existing_id, $code );
+            self::assign_competition_term( $existing_id, $code, $comp_api_name );
             self::assign_season_term( $existing_id, $local_date );
 
             // Regenerate title.
@@ -327,7 +402,7 @@ class DDCWWFCSC_Fixture_Sync {
         }
 
         // Assign competition and season terms.
-        self::assign_competition_term( $post_id, $code );
+        self::assign_competition_term( $post_id, $code, $comp_api_name );
         self::assign_season_term( $post_id, $local_date );
 
         // Generate proper title.
@@ -429,11 +504,13 @@ class DDCWWFCSC_Fixture_Sync {
     /**
      * Assign a competition taxonomy term to a fixture.
      *
-     * @param int    $post_id Fixture post ID.
-     * @param string $code    Competition code (PL, FAC, ELC).
+     * @param int    $post_id      Fixture post ID.
+     * @param string $code         Competition code (PL, FAC, ELC, etc.).
+     * @param string $api_name     Competition name from the API — used as label
+     *                             for any code not in the COMPETITIONS map.
      */
-    public static function assign_competition_term( $post_id, $code ) {
-        $name = self::COMPETITIONS[ $code ] ?? $code;
+    public static function assign_competition_term( $post_id, $code, $api_name = '' ) {
+        $name = self::COMPETITIONS[ $code ] ?? ( $api_name ?: $code );
 
         $term = get_term_by( 'name', $name, 'ddcwwfcsc_competition' );
         if ( ! $term ) {

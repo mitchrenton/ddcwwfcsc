@@ -111,7 +111,7 @@ class DDCWWFCSC_Fixture_CPT {
             'public'              => true,
             'has_archive'         => true,
             'show_in_rest'        => true,
-            'supports'            => array(),
+            'supports'            => array( 'thumbnail' ),
             'menu_icon'           => 'dashicons-tickets',
             'rewrite'             => array( 'slug' => 'fixtures' ),
             'capability_type'     => 'post',
@@ -213,11 +213,25 @@ class DDCWWFCSC_Fixture_CPT {
             'sanitize_callback' => 'esc_url_raw',
         ) );
 
+        // Register term meta for stadium image (media library attachment ID).
+        register_term_meta( 'ddcwwfcsc_opponent', '_ddcwwfcsc_stadium_id', array(
+            'type'              => 'integer',
+            'single'            => true,
+            'show_in_rest'      => true,
+            'sanitize_callback' => 'absint',
+        ) );
+
         // Badge fields on taxonomy forms.
         add_action( 'ddcwwfcsc_opponent_add_form_fields', array( __CLASS__, 'add_badge_field' ) );
         add_action( 'ddcwwfcsc_opponent_edit_form_fields', array( __CLASS__, 'edit_badge_field' ), 10, 2 );
         add_action( 'created_ddcwwfcsc_opponent', array( __CLASS__, 'save_badge_field' ) );
         add_action( 'edited_ddcwwfcsc_opponent', array( __CLASS__, 'save_badge_field' ) );
+
+        // Stadium image fields on taxonomy forms.
+        add_action( 'ddcwwfcsc_opponent_add_form_fields', array( __CLASS__, 'add_stadium_field' ) );
+        add_action( 'ddcwwfcsc_opponent_edit_form_fields', array( __CLASS__, 'edit_stadium_field' ), 10, 2 );
+        add_action( 'created_ddcwwfcsc_opponent', array( __CLASS__, 'save_stadium_field' ) );
+        add_action( 'edited_ddcwwfcsc_opponent', array( __CLASS__, 'save_stadium_field' ) );
 
         // Enqueue media uploader on opponent taxonomy pages.
         add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_badge_uploader' ) );
@@ -275,11 +289,29 @@ class DDCWWFCSC_Fixture_CPT {
         }
 
         return array(
-            'name'      => $term->name,
-            'slug'      => $term->slug,
-            'term_id'   => $term->term_id,
-            'badge_url' => $badge_url,
+            'name'        => $term->name,
+            'slug'        => $term->slug,
+            'term_id'     => $term->term_id,
+            'badge_url'   => $badge_url,
+            'stadium_url' => self::get_stadium_url_for_term( $term->term_id ),
         );
+    }
+
+    /**
+     * Get the stadium image URL for an opponent term.
+     *
+     * @param int $term_id
+     * @return string Full URL or empty string.
+     */
+    public static function get_stadium_url_for_term( $term_id ) {
+        $stadium_id = (int) get_term_meta( $term_id, '_ddcwwfcsc_stadium_id', true );
+        if ( $stadium_id ) {
+            $url = wp_get_attachment_image_url( $stadium_id, 'full' );
+            if ( $url ) {
+                return $url;
+            }
+        }
+        return '';
     }
 
     /**
@@ -463,6 +495,64 @@ class DDCWWFCSC_Fixture_CPT {
                 update_term_meta( $term_id, '_ddcwwfcsc_badge_id', $badge_id );
             } else {
                 delete_term_meta( $term_id, '_ddcwwfcsc_badge_id' );
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Opponent stadium image fields
+    // -------------------------------------------------------------------------
+
+    /**
+     * Add stadium image field to the "Add New Opponent" form.
+     */
+    public static function add_stadium_field() {
+        ?>
+        <div class="form-field">
+            <label><?php esc_html_e( 'Stadium Image', 'ddcwwfcsc' ); ?></label>
+            <div id="ddcwwfcsc-stadium-preview"></div>
+            <input type="hidden" name="ddcwwfcsc_stadium_id" id="ddcwwfcsc-stadium-id" value="">
+            <button type="button" class="button" id="ddcwwfcsc-stadium-upload"><?php esc_html_e( 'Upload Stadium Image', 'ddcwwfcsc' ); ?></button>
+            <button type="button" class="button" id="ddcwwfcsc-stadium-remove" style="display:none;"><?php esc_html_e( 'Remove', 'ddcwwfcsc' ); ?></button>
+            <p><?php esc_html_e( "Used as the hero background on this opponent's fixture pages.", 'ddcwwfcsc' ); ?></p>
+        </div>
+        <?php
+    }
+
+    /**
+     * Add stadium image field to the "Edit Opponent" form.
+     */
+    public static function edit_stadium_field( $term, $taxonomy ) {
+        $stadium_id  = (int) get_term_meta( $term->term_id, '_ddcwwfcsc_stadium_id', true );
+        $stadium_url = self::get_stadium_url_for_term( $term->term_id );
+        ?>
+        <tr class="form-field">
+            <th scope="row"><label><?php esc_html_e( 'Stadium Image', 'ddcwwfcsc' ); ?></label></th>
+            <td>
+                <div id="ddcwwfcsc-stadium-preview">
+                    <?php if ( $stadium_url ) : ?>
+                        <img src="<?php echo esc_url( $stadium_url ); ?>" style="max-width:200px;max-height:120px;object-fit:cover;border-radius:4px;">
+                    <?php endif; ?>
+                </div>
+                <input type="hidden" name="ddcwwfcsc_stadium_id" id="ddcwwfcsc-stadium-id" value="<?php echo esc_attr( $stadium_id ); ?>">
+                <button type="button" class="button" id="ddcwwfcsc-stadium-upload" style="margin-top:6px;"><?php esc_html_e( 'Upload Stadium Image', 'ddcwwfcsc' ); ?></button>
+                <button type="button" class="button" id="ddcwwfcsc-stadium-remove" style="margin-top:6px;<?php echo $stadium_id ? '' : 'display:none;'; ?>"><?php esc_html_e( 'Remove', 'ddcwwfcsc' ); ?></button>
+                <p class="description"><?php esc_html_e( "Used as the hero background on this opponent's fixture pages.", 'ddcwwfcsc' ); ?></p>
+            </td>
+        </tr>
+        <?php
+    }
+
+    /**
+     * Save the stadium image field for an opponent term.
+     */
+    public static function save_stadium_field( $term_id ) {
+        if ( isset( $_POST['ddcwwfcsc_stadium_id'] ) ) {
+            $stadium_id = absint( $_POST['ddcwwfcsc_stadium_id'] );
+            if ( $stadium_id ) {
+                update_term_meta( $term_id, '_ddcwwfcsc_stadium_id', $stadium_id );
+            } else {
+                delete_term_meta( $term_id, '_ddcwwfcsc_stadium_id' );
             }
         }
     }

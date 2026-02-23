@@ -52,6 +52,47 @@
             $( '#ddcwwfcsc-badge-id' ).val( '' );
             $( '#ddcwwfcsc-badge-preview' ).html( '' );
             $( '#ddcwwfcsc-badge-remove' ).hide();
+            $( '#ddcwwfcsc-stadium-id' ).val( '' );
+            $( '#ddcwwfcsc-stadium-preview' ).html( '' );
+            $( '#ddcwwfcsc-stadium-remove' ).hide();
         }
+    } );
+
+    // ── Stadium image upload ─────────────────────────────────────────────────
+
+    var stadiumFrame;
+
+    $( document ).on( 'click', '#ddcwwfcsc-stadium-upload', function ( e ) {
+        e.preventDefault();
+
+        if ( stadiumFrame ) {
+            stadiumFrame.open();
+            return;
+        }
+
+        stadiumFrame = wp.media( {
+            title: 'Select Stadium Image',
+            button: { text: 'Use as Stadium Image' },
+            multiple: false,
+            library: { type: 'image' },
+        } );
+
+        stadiumFrame.on( 'select', function () {
+            var attachment = stadiumFrame.state().get( 'selection' ).first().toJSON();
+            $( '#ddcwwfcsc-stadium-id' ).val( attachment.id );
+            $( '#ddcwwfcsc-stadium-preview' ).html(
+                '<img src="' + attachment.url + '" style="max-width:200px;max-height:120px;object-fit:cover;border-radius:4px;margin-top:6px;">'
+            );
+            $( '#ddcwwfcsc-stadium-remove' ).show();
+        } );
+
+        stadiumFrame.open();
+    } );
+
+    $( document ).on( 'click', '#ddcwwfcsc-stadium-remove', function ( e ) {
+        e.preventDefault();
+        $( '#ddcwwfcsc-stadium-id' ).val( '' );
+        $( '#ddcwwfcsc-stadium-preview' ).html( '' );
+        $( this ).hide();
     } );
 } )( jQuery );

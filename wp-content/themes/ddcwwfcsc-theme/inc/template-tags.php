@@ -109,30 +109,22 @@ function ddcwwfcsc_fixture_venue( $post_id = null ) {
 }
 
 /**
- * Prints status badges for a fixture (venue, upcoming/past, on-sale/sold-out).
+ * Prints status badges for a fixture (on-sale/sold-out only — venue and upcoming/past are
+ * conveyed by team position and archive section headings respectively).
  */
 function ddcwwfcsc_fixture_badges( $post_id = null ) {
 	$post_id   = $post_id ?: get_the_ID();
-	$venue     = get_post_meta( $post_id, '_ddcwwfcsc_venue', true );
 	$upcoming  = ddcwwfcsc_is_fixture_upcoming( $post_id );
 	$on_sale   = (bool) get_post_meta( $post_id, '_ddcwwfcsc_on_sale', true );
 	$remaining = (int) get_post_meta( $post_id, '_ddcwwfcsc_tickets_remaining', true );
 
-	// Venue badge.
-	if ( 'home' === $venue ) {
-		echo '<span class="badge badge--home">' . esc_html__( 'Home', 'ddcwwfcsc-theme' ) . '</span> ';
-	} elseif ( 'away' === $venue ) {
-		echo '<span class="badge badge--away">' . esc_html__( 'Away', 'ddcwwfcsc-theme' ) . '</span> ';
+	if ( ! $upcoming ) {
+		return;
 	}
 
-	if ( $upcoming ) {
-		echo '<span class="badge badge--upcoming">' . esc_html__( 'Upcoming', 'ddcwwfcsc-theme' ) . '</span> ';
-		if ( $on_sale && $remaining > 0 ) {
-			echo '<span class="badge badge--on-sale">' . esc_html__( 'On Sale', 'ddcwwfcsc-theme' ) . '</span>';
-		} elseif ( $on_sale && $remaining <= 0 ) {
-			echo '<span class="badge badge--sold-out">' . esc_html__( 'Sold Out', 'ddcwwfcsc-theme' ) . '</span>';
-		}
-	} else {
-		echo '<span class="badge badge--past">' . esc_html__( 'Past', 'ddcwwfcsc-theme' ) . '</span>';
+	if ( $on_sale && $remaining > 0 ) {
+		echo '<span class="badge badge--on-sale">' . esc_html__( 'On Sale', 'ddcwwfcsc-theme' ) . '</span>';
+	} elseif ( $on_sale && $remaining <= 0 ) {
+		echo '<span class="badge badge--sold-out">' . esc_html__( 'Sold Out', 'ddcwwfcsc-theme' ) . '</span>';
 	}
 }

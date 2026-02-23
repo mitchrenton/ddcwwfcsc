@@ -82,4 +82,21 @@ function ddcwwfcsc_theme_customizer( $wp_customize ) {
 		'type'        => 'range',
 		'input_attrs' => array( 'min' => 0, 'max' => 100, 'step' => 5 ),
 	) );
+
+	// --- Fixture Page Hero ---
+	$wp_customize->add_section( 'ddcwwfcsc_fixture_hero', array(
+		'title'       => __( 'Fixture Page Hero', 'ddcwwfcsc-theme' ),
+		'description' => __( 'Fallback background image for fixture pages when no stadium image has been set on the opponent. Set this to a photo of Molineux so home fixtures always have a stadium background.', 'ddcwwfcsc-theme' ),
+		'priority'    => 35,
+	) );
+
+	$wp_customize->add_setting( 'ddcwwfcsc_fixture_hero_image', array(
+		'default'           => '',
+		'sanitize_callback' => 'esc_url_raw',
+	) );
+	$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'ddcwwfcsc_fixture_hero_image', array(
+		'label'       => __( 'Default Stadium Image', 'ddcwwfcsc-theme' ),
+		'description' => __( 'Used when the opponent has no stadium image set. Recommended: a photo of Molineux.', 'ddcwwfcsc-theme' ),
+		'section'     => 'ddcwwfcsc_fixture_hero',
+	) ) );
 }
