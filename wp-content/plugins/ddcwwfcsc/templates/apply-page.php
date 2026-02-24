@@ -59,7 +59,7 @@ $login_url = add_query_arg( 'ddcwwfcsc_page', 'login', home_url( '/' ) );
 						value="<?php echo esc_attr( sanitize_email( $_POST['email'] ?? '' ) ); ?>">
 				</div>
 
-				<button type="submit" class="ddcwwfcsc-auth-btn">
+				<button type="submit" class="btn btn--primary ddcwwfcsc-auth-btn">
 					<?php esc_html_e( 'Submit Application', 'ddcwwfcsc' ); ?>
 				</button>
 			</form>

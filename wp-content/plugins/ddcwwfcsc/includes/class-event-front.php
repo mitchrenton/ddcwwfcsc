@@ -56,8 +56,20 @@ class DDCWWFCSC_Event_Front {
         $lat              = get_post_meta( $post_id, '_ddcwwfcsc_event_lat', true );
         $lng              = get_post_meta( $post_id, '_ddcwwfcsc_event_lng', true );
         $signups          = DDCWWFCSC_Event_CPT::get_signups( $post_id );
-        $count            = count( $signups );
         $api_key          = get_option( 'ddcwwfcsc_google_maps_api_key', '' );
+        $is_upcoming      = $event_date && strtotime( $event_date ) > current_time( 'timestamp' );
+
+        // Check if the current user has already signed up.
+        $already_signed_up = false;
+        if ( is_user_logged_in() ) {
+            $current_email = wp_get_current_user()->user_email;
+            foreach ( $signups as $signup ) {
+                if ( isset( $signup['email'] ) && $signup['email'] === $current_email ) {
+                    $already_signed_up = true;
+                    break;
+                }
+            }
+        }
 
         ob_start();
         ?>
@@ -115,9 +127,22 @@ class DDCWWFCSC_Event_Front {
                 <div class="ddcwwfcsc-event-map" data-lat="<?php echo esc_attr( $lat ); ?>" data-lng="<?php echo esc_attr( $lng ); ?>" data-name="<?php echo esc_attr( $location ); ?>"></div>
             <?php endif; ?>
 
-            <p class="ddcwwfcsc-event-attendee-count">
-                <?php printf( esc_html__( 'Attendees: %s', 'ddcwwfcsc' ), '<span class="ddcwwfcsc-event-count">' . esc_html( $count ) . '</span>' ); ?>
-            </p>
+            <?php if ( $is_upcoming ) : ?>
+                <div class="ddcwwfcsc-event-signup-row">
+                    <?php if ( $already_signed_up ) : ?>
+                        <p class="ddcwwfcsc-event-signup-confirmed"><?php esc_html_e( "You're signed up!", 'ddcwwfcsc' ); ?></p>
+                    <?php elseif ( is_user_logged_in() ) : ?>
+                        <form class="ddcwwfcsc-event-signup-form" data-event-id="<?php echo esc_attr( $post_id ); ?>">
+                            <button type="submit" class="btn btn--primary ddcwwfcsc-event-signup-btn"><?php esc_html_e( 'Sign Up', 'ddcwwfcsc' ); ?></button>
+                            <div class="ddcwwfcsc-event-signup-message"></div>
+                        </form>
+                    <?php else : ?>
+                        <p class="ddcwwfcsc-login-prompt">
+                            <a href="<?php echo esc_url( wp_login_url( get_permalink( $post_id ) ) ); ?>"><?php esc_html_e( 'Log in', 'ddcwwfcsc' ); ?></a> <?php esc_html_e( 'to sign up.', 'ddcwwfcsc' ); ?>
+                        </p>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
         </div>
         <?php
         return ob_get_clean();
@@ -125,38 +150,13 @@ class DDCWWFCSC_Event_Front {
 
     /**
      * Render the sign-up form only.
+     * Sign-up is now inline in render_details(); this returns empty.
      *
      * @param int $post_id Post ID.
      * @return string HTML output.
      */
     public static function render_signup_form( $post_id ) {
-        ob_start();
-        ?>
-        <div class="ddcwwfcsc-event-signup-section">
-            <h3><?php esc_html_e( 'Sign Up', 'ddcwwfcsc' ); ?></h3>
-            <?php if ( ! is_user_logged_in() ) : ?>
-                <p class="ddcwwfcsc-login-prompt">
-                    <a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>"><?php esc_html_e( 'Log in', 'ddcwwfcsc' ); ?></a> <?php esc_html_e( 'to sign up for this event.', 'ddcwwfcsc' ); ?>
-                </p>
-            <?php else :
-                $current_user = wp_get_current_user();
-            ?>
-            <form class="ddcwwfcsc-event-signup-form" data-event-id="<?php echo esc_attr( $post_id ); ?>">
-                <div class="ddcwwfcsc-event-signup-field">
-                    <label for="ddcwwfcsc-signup-name"><?php esc_html_e( 'Name', 'ddcwwfcsc' ); ?></label>
-                    <input type="text" id="ddcwwfcsc-signup-name" name="name" value="<?php echo esc_attr( $current_user->display_name ); ?>" required>
-                </div>
-                <div class="ddcwwfcsc-event-signup-field">
-                    <label for="ddcwwfcsc-signup-email"><?php esc_html_e( 'Email', 'ddcwwfcsc' ); ?></label>
-                    <input type="email" id="ddcwwfcsc-signup-email" name="email" value="<?php echo esc_attr( $current_user->user_email ); ?>" required>
-                </div>
-                <button type="submit" class="ddcwwfcsc-event-signup-btn"><?php esc_html_e( 'Sign Up', 'ddcwwfcsc' ); ?></button>
-                <div class="ddcwwfcsc-event-signup-message"></div>
-            </form>
-            <?php endif; ?>
-        </div>
-        <?php
-        return ob_get_clean();
+        return '';
     }
 
     /**
@@ -175,8 +175,6 @@ class DDCWWFCSC_Event_Front {
         );
 
         if ( is_user_logged_in() ) {
-            $current_user = wp_get_current_user();
-
             wp_enqueue_script(
                 'ddcwwfcsc-event-signup',
                 DDCWWFCSC_PLUGIN_URL . 'assets/js/event-signup.js',
@@ -186,11 +184,9 @@ class DDCWWFCSC_Event_Front {
             );
 
             wp_localize_script( 'ddcwwfcsc-event-signup', 'ddcwwfcsc_event_signup', array(
-                'ajax_url'   => admin_url( 'admin-ajax.php' ),
-                'nonce'      => wp_create_nonce( 'ddcwwfcsc_event_signup' ),
-                'post_id'    => get_the_ID(),
-                'user_name'  => $current_user->display_name,
-                'user_email' => $current_user->user_email,
+                'ajax_url' => admin_url( 'admin-ajax.php' ),
+                'nonce'    => wp_create_nonce( 'ddcwwfcsc_event_signup' ),
+                'post_id'  => get_the_ID(),
             ) );
         }
     }
@@ -207,19 +203,21 @@ class DDCWWFCSC_Event_Front {
         check_ajax_referer( 'ddcwwfcsc_event_signup', 'nonce' );
 
         $post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
-        $name    = isset( $_POST['name'] ) ? sanitize_text_field( $_POST['name'] ) : '';
-        $email   = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
 
         if ( ! $post_id || 'ddcwwfcsc_event' !== get_post_type( $post_id ) ) {
             wp_send_json_error( array( 'message' => __( 'Invalid event.', 'ddcwwfcsc' ) ) );
         }
 
-        if ( ! $name || ! $email ) {
-            wp_send_json_error( array( 'message' => __( 'Please provide your name and email.', 'ddcwwfcsc' ) ) );
-        }
+        $current_user = wp_get_current_user();
+        $name         = $current_user->display_name;
+        $email        = $current_user->user_email;
 
-        if ( ! is_email( $email ) ) {
-            wp_send_json_error( array( 'message' => __( 'Please provide a valid email address.', 'ddcwwfcsc' ) ) );
+        // Prevent duplicate sign-ups.
+        $signups = DDCWWFCSC_Event_CPT::get_signups( $post_id );
+        foreach ( $signups as $signup ) {
+            if ( isset( $signup['email'] ) && $signup['email'] === $email ) {
+                wp_send_json_error( array( 'message' => __( "You're already signed up for this event.", 'ddcwwfcsc' ) ) );
+            }
         }
 
         $count = DDCWWFCSC_Event_CPT::add_signup( $post_id, $name, $email );

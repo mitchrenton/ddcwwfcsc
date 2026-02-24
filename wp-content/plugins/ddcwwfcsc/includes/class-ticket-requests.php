@@ -75,16 +75,32 @@ class DDCWWFCSC_Ticket_Requests {
             wp_send_json_error( array( 'message' => __( 'Tickets are no longer available for this fixture.', 'ddcwwfcsc' ) ) );
         }
 
-        // Check per-person limit.
+        // Check per-member limit across all existing requests for this fixture + email.
         $max_per_person = (int) get_post_meta( $fixture_id, '_ddcwwfcsc_max_per_person', true );
-        if ( $max_per_person && $num_tickets > $max_per_person ) {
-            wp_send_json_error( array(
-                'message' => sprintf(
-                    /* translators: %d: maximum tickets per person */
-                    __( 'You can request a maximum of %d tickets per person.', 'ddcwwfcsc' ),
-                    $max_per_person
-                ),
+        if ( $max_per_person ) {
+            $already_requested = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT COALESCE(SUM(num_tickets), 0) FROM {$table}
+                  WHERE fixture_id = %d AND email = %s AND status != 'cancelled'",
+                $fixture_id,
+                $email
             ) );
+
+            if ( $already_requested + $num_tickets > $max_per_person ) {
+                $remaining_allowance = max( 0, $max_per_person - $already_requested );
+                if ( $remaining_allowance <= 0 ) {
+                    wp_send_json_error( array(
+                        'message' => __( 'You have already reached the maximum ticket allocation for this fixture.', 'ddcwwfcsc' ),
+                    ) );
+                } else {
+                    wp_send_json_error( array(
+                        'message' => sprintf(
+                            /* translators: %d: remaining ticket allowance for this member */
+                            __( 'You can only request %d more ticket(s) for this fixture.', 'ddcwwfcsc' ),
+                            $remaining_allowance
+                        ),
+                    ) );
+                }
+            }
         }
 
         // Check availability — use a lock to prevent race conditions.
@@ -125,19 +141,33 @@ class DDCWWFCSC_Ticket_Requests {
         // Clean the meta cache so subsequent reads are accurate.
         wp_cache_delete( $fixture_id, 'post_meta' );
 
+        // Calculate amount from the fixture's price category.
+        $amount      = null;
+        $price_terms = get_the_terms( $fixture_id, 'ddcwwfcsc_price_category' );
+        if ( $price_terms && ! is_wp_error( $price_terms ) ) {
+            $price_val = get_term_meta( $price_terms[0]->term_id, '_ddcwwfcsc_price', true );
+            if ( $price_val ) {
+                $amount = round( (float) $price_val * $num_tickets, 2 );
+            }
+        }
+
         // Insert the request record.
-        $wpdb->insert(
-            $table,
-            array(
-                'fixture_id'  => $fixture_id,
-                'name'        => $name,
-                'email'       => $email,
-                'num_tickets' => $num_tickets,
-                'status'      => 'pending',
-                'created_at'  => current_time( 'mysql' ),
-            ),
-            array( '%d', '%s', '%s', '%d', '%s', '%s' )
+        $insert_data   = array(
+            'fixture_id'  => $fixture_id,
+            'name'        => $name,
+            'email'       => $email,
+            'num_tickets' => $num_tickets,
+            'status'      => 'pending',
+            'created_at'  => current_time( 'mysql' ),
         );
+        $insert_format = array( '%d', '%s', '%s', '%d', '%s', '%s' );
+
+        if ( null !== $amount ) {
+            $insert_data['amount'] = $amount;
+            $insert_format[]       = '%f';
+        }
+
+        $wpdb->insert( $table, $insert_data, $insert_format );
 
         $request_id = $wpdb->insert_id;
 
@@ -405,19 +435,33 @@ class DDCWWFCSC_Ticket_Requests {
         // Clean the meta cache.
         wp_cache_delete( $fixture_id, 'post_meta' );
 
+        // Calculate amount from the fixture's price category.
+        $amount      = null;
+        $price_terms = get_the_terms( $fixture_id, 'ddcwwfcsc_price_category' );
+        if ( $price_terms && ! is_wp_error( $price_terms ) ) {
+            $price_val = get_term_meta( $price_terms[0]->term_id, '_ddcwwfcsc_price', true );
+            if ( $price_val ) {
+                $amount = round( (float) $price_val * $num_tickets, 2 );
+            }
+        }
+
         // Insert the request record.
-        $wpdb->insert(
-            $table,
-            array(
-                'fixture_id'  => $fixture_id,
-                'name'        => $name,
-                'email'       => $email,
-                'num_tickets' => $num_tickets,
-                'status'      => 'pending',
-                'created_at'  => current_time( 'mysql' ),
-            ),
-            array( '%d', '%s', '%s', '%d', '%s', '%s' )
+        $insert_data   = array(
+            'fixture_id'  => $fixture_id,
+            'name'        => $name,
+            'email'       => $email,
+            'num_tickets' => $num_tickets,
+            'status'      => 'pending',
+            'created_at'  => current_time( 'mysql' ),
         );
+        $insert_format = array( '%d', '%s', '%s', '%d', '%s', '%s' );
+
+        if ( null !== $amount ) {
+            $insert_data['amount'] = $amount;
+            $insert_format[]       = '%f';
+        }
+
+        $wpdb->insert( $table, $insert_data, $insert_format );
 
         $request_id = $wpdb->insert_id;
 

@@ -93,10 +93,10 @@ if ( ! $home_query->have_posts() && ! $away_query->have_posts() ) {
 							<?php endif; ?>
 							<?php if ( $on_sale && $remaining > 0 ) : ?>
 								<?php if ( is_user_logged_in() ) : ?>
-									<button type="button" class="btn btn--sm" data-open-ticket-modal="<?php echo esc_attr( $fixture_id ); ?>"><?php esc_html_e( 'Request Tickets', 'ddcwwfcsc-theme' ); ?></button>
+									<button type="button" class="btn btn--primary btn--sm" data-open-ticket-modal="<?php echo esc_attr( $fixture_id ); ?>"><?php esc_html_e( 'Request Tickets', 'ddcwwfcsc-theme' ); ?></button>
 									<?php $home_fixtures[] = $fixture_id; ?>
 								<?php else : ?>
-									<a href="<?php echo esc_url( wp_login_url( home_url() ) ); ?>" class="btn btn--sm"><?php esc_html_e( 'Log in to Request Tickets', 'ddcwwfcsc-theme' ); ?></a>
+									<a href="<?php echo esc_url( wp_login_url( home_url() ) ); ?>" class="btn btn--primary btn--sm"><?php esc_html_e( 'Log in to Request Tickets', 'ddcwwfcsc-theme' ); ?></a>
 								<?php endif; ?>
 							<?php elseif ( $on_sale && $remaining < 1 ) : ?>
 								<span class="fixture-card__status fixture-card__status--sold-out"><?php esc_html_e( 'Sold Out', 'ddcwwfcsc-theme' ); ?></span>
@@ -120,22 +120,22 @@ if ( ! $home_query->have_posts() && ! $away_query->have_posts() ) {
 				$m_opponent       = DDCWWFCSC_Fixture_CPT::get_opponent( $modal_fixture_id );
 				$m_match_date     = get_post_meta( $modal_fixture_id, '_ddcwwfcsc_match_date', true );
 				$m_formatted_date = $m_match_date ? wp_date( 'l j F Y, H:i', strtotime( $m_match_date ) ) : __( 'TBC', 'ddcwwfcsc' );
-				$m_total          = (int) get_post_meta( $modal_fixture_id, '_ddcwwfcsc_total_tickets', true );
 				$m_remaining      = (int) get_post_meta( $modal_fixture_id, '_ddcwwfcsc_tickets_remaining', true );
 				$m_max_per_person = (int) get_post_meta( $modal_fixture_id, '_ddcwwfcsc_max_per_person', true );
 				$m_max_selectable = min( $m_max_per_person, $m_remaining );
 
 				$m_price_amount = '';
-				$m_price_label  = '';
+				$m_unit_price   = 0;
 				$m_terms = get_the_terms( $modal_fixture_id, 'ddcwwfcsc_price_category' );
 				if ( $m_terms && ! is_wp_error( $m_terms ) ) {
-					$m_term  = $m_terms[0];
-					$m_price = get_term_meta( $m_term->term_id, '_ddcwwfcsc_price', true );
-					$m_price_label = $m_term->name;
-					if ( $m_price ) {
-						$m_price_amount = '£' . number_format( (float) $m_price, 2 );
+					$m_price_val = get_term_meta( $m_terms[0]->term_id, '_ddcwwfcsc_price', true );
+					if ( $m_price_val ) {
+						$m_unit_price   = (float) $m_price_val;
+						$m_price_amount = '£' . number_format( $m_unit_price, 2 );
 					}
 				}
+
+				$modal_user = wp_get_current_user();
 			?>
 				<dialog class="ticket-modal" id="ticket-modal-<?php echo esc_attr( $modal_fixture_id ); ?>">
 					<div class="ticket-modal__inner">
@@ -157,51 +157,43 @@ if ( ! $home_query->have_posts() && ! $away_query->have_posts() ) {
 									<span class="ddcwwfcsc-detail-label"><?php esc_html_e( 'Date', 'ddcwwfcsc' ); ?></span>
 									<span class="ddcwwfcsc-detail-value"><?php echo esc_html( $m_formatted_date ); ?></span>
 								</div>
-								<?php if ( $m_price_amount ) : ?>
-									<div class="ddcwwfcsc-detail">
-										<span class="ddcwwfcsc-detail-label"><?php echo esc_html( $m_price_label ); ?></span>
-										<span class="ddcwwfcsc-detail-value ddcwwfcsc-price"><?php echo esc_html( $m_price_amount ); ?> <span class="ddcwwfcsc-per-ticket"><?php esc_html_e( 'per ticket', 'ddcwwfcsc' ); ?></span></span>
-									</div>
-								<?php endif; ?>
-								<div class="ddcwwfcsc-detail">
-									<span class="ddcwwfcsc-detail-label"><?php esc_html_e( 'Availability', 'ddcwwfcsc' ); ?></span>
-									<span class="ddcwwfcsc-detail-value ddcwwfcsc-remaining" data-fixture-id="<?php echo esc_attr( $modal_fixture_id ); ?>">
-										<?php
-										printf(
-											esc_html__( '%1$d of %2$d remaining', 'ddcwwfcsc' ),
-											$m_remaining,
-											$m_total
-										);
-										?>
-									</span>
-								</div>
 							</div>
 
-							<?php $modal_user = wp_get_current_user(); ?>
-							<form class="ddcwwfcsc-ticket-form" data-fixture-id="<?php echo esc_attr( $modal_fixture_id ); ?>">
-								<h4><?php esc_html_e( 'Request Tickets', 'ddcwwfcsc' ); ?></h4>
+							<form class="ddcwwfcsc-ticket-form"
+								  data-fixture-id="<?php echo esc_attr( $modal_fixture_id ); ?>"
+								  data-max-per-person="<?php echo esc_attr( $m_max_per_person ); ?>"
+								  <?php if ( $m_unit_price ) : ?>data-price="<?php echo esc_attr( $m_unit_price ); ?>"<?php endif; ?>>
 
-								<div class="ddcwwfcsc-form-row">
-									<label for="ddcwwfcsc-modal-name-<?php echo esc_attr( $modal_fixture_id ); ?>"><?php esc_html_e( 'Name', 'ddcwwfcsc' ); ?></label>
-									<input type="text" id="ddcwwfcsc-modal-name-<?php echo esc_attr( $modal_fixture_id ); ?>" name="name" value="<?php echo esc_attr( $modal_user->display_name ); ?>" required>
+								<input type="hidden" name="name" value="<?php echo esc_attr( $modal_user->display_name ); ?>">
+								<input type="hidden" name="email" value="<?php echo esc_attr( $modal_user->user_email ); ?>">
+
+								<div class="ddcwwfcsc-ticket-meta">
+									<span class="ddcwwfcsc-remaining" data-fixture-id="<?php echo esc_attr( $modal_fixture_id ); ?>">
+										<?php printf( esc_html__( '%d tickets available', 'ddcwwfcsc' ), $m_remaining ); ?>
+									</span>
+									<?php if ( $m_max_per_person ) : ?>
+										<span class="ddcwwfcsc-max-per"><?php printf( esc_html__( 'Max %d per member', 'ddcwwfcsc' ), $m_max_per_person ); ?></span>
+									<?php endif; ?>
+									<?php if ( $m_price_amount ) : ?>
+										<span class="ddcwwfcsc-price-per"><?php echo esc_html( $m_price_amount ); ?> <?php esc_html_e( 'per ticket', 'ddcwwfcsc' ); ?></span>
+									<?php endif; ?>
+								</div>
+
+								<div class="ddcwwfcsc-form-row ddcwwfcsc-form-row--stepper">
+									<div class="ddcwwfcsc-stepper">
+										<button type="button" class="ddcwwfcsc-stepper-btn ddcwwfcsc-stepper-dec" aria-label="<?php esc_attr_e( 'Decrease', 'ddcwwfcsc' ); ?>">&#8722;</button>
+										<input type="number" name="num_tickets" class="ddcwwfcsc-stepper-input"
+											   value="1" min="1" max="<?php echo esc_attr( $m_max_selectable ); ?>"
+											   readonly aria-label="<?php esc_attr_e( 'Number of tickets', 'ddcwwfcsc' ); ?>">
+										<button type="button" class="ddcwwfcsc-stepper-btn ddcwwfcsc-stepper-inc" aria-label="<?php esc_attr_e( 'Increase', 'ddcwwfcsc' ); ?>">+</button>
+									</div>
+									<?php if ( $m_unit_price ) : ?>
+										<span class="ddcwwfcsc-ticket-total"><?php printf( esc_html__( 'Total: %s', 'ddcwwfcsc' ), '£' . number_format( $m_unit_price, 2 ) ); ?></span>
+									<?php endif; ?>
 								</div>
 
 								<div class="ddcwwfcsc-form-row">
-									<label for="ddcwwfcsc-modal-email-<?php echo esc_attr( $modal_fixture_id ); ?>"><?php esc_html_e( 'Email', 'ddcwwfcsc' ); ?></label>
-									<input type="email" id="ddcwwfcsc-modal-email-<?php echo esc_attr( $modal_fixture_id ); ?>" name="email" value="<?php echo esc_attr( $modal_user->user_email ); ?>" required>
-								</div>
-
-								<div class="ddcwwfcsc-form-row">
-									<label for="ddcwwfcsc-modal-tickets-<?php echo esc_attr( $modal_fixture_id ); ?>"><?php esc_html_e( 'Number of Tickets', 'ddcwwfcsc' ); ?></label>
-									<select id="ddcwwfcsc-modal-tickets-<?php echo esc_attr( $modal_fixture_id ); ?>" name="num_tickets" required>
-										<?php for ( $i = 1; $i <= $m_max_selectable; $i++ ) : ?>
-											<option value="<?php echo esc_attr( $i ); ?>"><?php echo esc_html( $i ); ?></option>
-										<?php endfor; ?>
-									</select>
-								</div>
-
-								<div class="ddcwwfcsc-form-row">
-									<button type="submit" class="ddcwwfcsc-submit-btn"><?php esc_html_e( 'Request Tickets', 'ddcwwfcsc' ); ?></button>
+									<button type="submit" class="btn btn--primary ddcwwfcsc-submit-btn"><?php esc_html_e( 'Request 1 ticket', 'ddcwwfcsc' ); ?></button>
 								</div>
 
 								<div class="ddcwwfcsc-form-message" aria-live="polite"></div>
@@ -214,7 +206,6 @@ if ( ! $home_query->have_posts() && ! $away_query->have_posts() ) {
 			<?php
 			// Enqueue ticket form script + AJAX data for modals.
 			if ( ! empty( $home_fixtures ) ) {
-				$hp_user = wp_get_current_user();
 				wp_enqueue_script(
 					'ddcwwfcsc-ticket-form',
 					DDCWWFCSC_PLUGIN_URL . 'assets/js/ticket-form.js',
@@ -223,10 +214,8 @@ if ( ! $home_query->have_posts() && ! $away_query->have_posts() ) {
 					true
 				);
 				wp_localize_script( 'ddcwwfcsc-ticket-form', 'ddcwwfcsc', array(
-					'ajax_url'   => admin_url( 'admin-ajax.php' ),
-					'nonce'      => wp_create_nonce( 'ddcwwfcsc_ticket_request' ),
-					'user_name'  => $hp_user->display_name,
-					'user_email' => $hp_user->user_email,
+					'ajax_url' => admin_url( 'admin-ajax.php' ),
+					'nonce'    => wp_create_nonce( 'ddcwwfcsc_ticket_request' ),
 				) );
 			}
 			?>
@@ -259,7 +248,7 @@ if ( ! $home_query->have_posts() && ! $away_query->have_posts() ) {
 								<p class="fixture-card__date"><?php echo esc_html( $date ); ?></p>
 							<?php endif; ?>
 							<?php if ( $beerwolf_url ) : ?>
-								<a href="<?php echo esc_url( $beerwolf_url ); ?>" class="btn btn--sm"><?php esc_html_e( 'View Pub Guide', 'ddcwwfcsc-theme' ); ?></a>
+								<a href="<?php echo esc_url( $beerwolf_url ); ?>" class="btn btn--ghost btn--sm"><?php esc_html_e( 'View Pub Guide', 'ddcwwfcsc-theme' ); ?></a>
 							<?php endif; ?>
 						</div>
 					</div>

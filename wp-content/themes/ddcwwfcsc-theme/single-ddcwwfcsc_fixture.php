@@ -9,14 +9,17 @@ get_header();
 
 $post_id     = get_the_ID();
 $opponent    = class_exists( 'DDCWWFCSC_Fixture_CPT' ) ? DDCWWFCSC_Fixture_CPT::get_opponent( $post_id ) : null;
-$date        = ddcwwfcsc_fixture_date( $post_id );
 $venue       = get_post_meta( $post_id, '_ddcwwfcsc_venue', true );
 $is_home     = 'home' === $venue;
 $is_upcoming = ddcwwfcsc_is_fixture_upcoming( $post_id );
 $remaining   = (int) get_post_meta( $post_id, '_ddcwwfcsc_tickets_remaining', true );
-$total       = (int) get_post_meta( $post_id, '_ddcwwfcsc_total_tickets', true );
 $on_sale     = (bool) get_post_meta( $post_id, '_ddcwwfcsc_on_sale', true );
 $max_pp      = (int) get_post_meta( $post_id, '_ddcwwfcsc_max_per_person', true );
+
+// Match date for hero display.
+$match_date_raw = get_post_meta( $post_id, '_ddcwwfcsc_match_date', true );
+$hero_date      = $match_date_raw ? wp_date( 'l j F Y', strtotime( $match_date_raw ) ) : '';
+$hero_ko        = $match_date_raw ? wp_date( 'H:i', strtotime( $match_date_raw ) ) : '';
 
 // Wolves badge URL.
 $wolves_url = defined( 'DDCWWFCSC_PLUGIN_URL' ) ? DDCWWFCSC_PLUGIN_URL . 'assets/img/clubs/wolves.png' : '';
@@ -34,6 +37,15 @@ if ( $comp_terms && ! is_wp_error( $comp_terms ) ) {
 
 // Price categories.
 $price_terms = get_the_terms( $post_id, 'ddcwwfcsc_price_category' );
+
+// Unit price for the ticket form total.
+$unit_price = 0;
+if ( $price_terms && ! is_wp_error( $price_terms ) ) {
+	$first_price_val = get_term_meta( $price_terms[0]->term_id, '_ddcwwfcsc_price', true );
+	if ( $first_price_val ) {
+		$unit_price = (float) $first_price_val;
+	}
+}
 
 // Hero background resolution:
 // 1. Home team's stadium — Wolves term for home fixtures, opponent's term for away fixtures.
@@ -98,6 +110,14 @@ if ( $is_home ) {
 		<?php if ( $competition ) : ?>
 			<p class="hero__subheading"><?php echo esc_html( $competition ); ?></p>
 		<?php endif; ?>
+		<?php if ( $hero_date ) : ?>
+			<p class="hero__fixture-meta">
+				<?php echo esc_html( $hero_date ); ?>
+				<?php if ( $hero_ko && '00:00' !== $hero_ko ) : ?>
+					&bull; KO <?php echo esc_html( $hero_ko ); ?>
+				<?php endif; ?>
+			</p>
+		<?php endif; ?>
 	</div>
 </div>
 
@@ -107,45 +127,7 @@ if ( $is_home ) {
 
 			<article id="post-<?php echo esc_attr( $post_id ); ?>" class="fixture-single-main">
 
-				<?php // ── Match details ──────────────────────────────────────── ?>
-				<div class="fixture-details">
-					<?php if ( $date ) : ?>
-						<div class="fixture-detail-row">
-							<span class="fixture-detail-row__label"><?php esc_html_e( 'Date', 'ddcwwfcsc-theme' ); ?></span>
-							<span class="fixture-detail-row__value"><?php echo esc_html( $date ); ?></span>
-						</div>
-					<?php endif; ?>
-
-					<?php if ( $is_home && $is_upcoming && $on_sale && $total ) : ?>
-						<div class="fixture-detail-row">
-							<span class="fixture-detail-row__label"><?php esc_html_e( 'Tickets', 'ddcwwfcsc-theme' ); ?></span>
-							<span class="fixture-detail-row__value">
-								<span class="ddcwwfcsc-remaining" data-fixture-id="<?php echo esc_attr( $post_id ); ?>">
-									<?php printf( esc_html__( '%1$d of %2$d remaining', 'ddcwwfcsc' ), $remaining, $total ); ?>
-								</span>
-							</span>
-						</div>
-					<?php endif; ?>
-
-					<?php if ( $is_home && $is_upcoming && $on_sale && $max_pp ) : ?>
-						<div class="fixture-detail-row">
-							<span class="fixture-detail-row__label"><?php esc_html_e( 'Max per person', 'ddcwwfcsc-theme' ); ?></span>
-							<span class="fixture-detail-row__value"><?php echo esc_html( $max_pp ); ?></span>
-						</div>
-					<?php endif; ?>
-
-					<?php if ( $is_home && $is_upcoming && $on_sale && $price_terms && ! is_wp_error( $price_terms ) ) : ?>
-						<?php foreach ( $price_terms as $term ) :
-							$price = get_term_meta( $term->term_id, '_ddcwwfcsc_price', true );
-							?>
-							<div class="fixture-detail-row">
-								<span class="fixture-detail-row__label"><?php echo esc_html( $term->name ); ?></span>
-								<span class="fixture-detail-row__value">&pound;<?php echo esc_html( number_format( (float) $price, 2 ) ); ?></span>
-							</div>
-						<?php endforeach; ?>
-					<?php endif; ?>
-				</div>
-
+	
 				<?php // ── Ticket section — home fixtures only ───────────────── ?>
 				<?php if ( $is_home && $is_upcoming ) : ?>
 
@@ -162,37 +144,46 @@ if ( $is_home ) {
 								true
 							);
 							wp_localize_script( 'ddcwwfcsc-ticket-form', 'ddcwwfcsc', array(
-								'ajax_url'   => admin_url( 'admin-ajax.php' ),
-								'nonce'      => wp_create_nonce( 'ddcwwfcsc_ticket_request' ),
-								'user_name'  => $current_user->display_name,
-								'user_email' => $current_user->user_email,
+								'ajax_url' => admin_url( 'admin-ajax.php' ),
+								'nonce'    => wp_create_nonce( 'ddcwwfcsc_ticket_request' ),
 							) );
 						?>
 							<div class="ddcwwfcsc-fixture" data-fixture-id="<?php echo esc_attr( $post_id ); ?>">
-								<form class="ddcwwfcsc-ticket-form" data-fixture-id="<?php echo esc_attr( $post_id ); ?>">
-									<h2><?php esc_html_e( 'Request Tickets', 'ddcwwfcsc' ); ?></h2>
+								<form class="ddcwwfcsc-ticket-form"
+									  data-fixture-id="<?php echo esc_attr( $post_id ); ?>"
+									  data-max-per-person="<?php echo esc_attr( $max_pp ); ?>"
+									  <?php if ( $unit_price ) : ?>data-price="<?php echo esc_attr( $unit_price ); ?>"<?php endif; ?>>
 
-									<div class="ddcwwfcsc-form-row">
-										<label for="ddcwwfcsc-single-name"><?php esc_html_e( 'Name', 'ddcwwfcsc' ); ?></label>
-										<input type="text" id="ddcwwfcsc-single-name" name="name" value="<?php echo esc_attr( $current_user->display_name ); ?>" required>
+									<input type="hidden" name="name" value="<?php echo esc_attr( $current_user->display_name ); ?>">
+									<input type="hidden" name="email" value="<?php echo esc_attr( $current_user->user_email ); ?>">
+
+									<div class="ddcwwfcsc-ticket-meta">
+										<span class="ddcwwfcsc-remaining" data-fixture-id="<?php echo esc_attr( $post_id ); ?>">
+											<?php printf( esc_html__( '%d tickets available', 'ddcwwfcsc' ), $remaining ); ?>
+										</span>
+										<?php if ( $max_pp ) : ?>
+											<span class="ddcwwfcsc-max-per"><?php printf( esc_html__( 'Max %d per member', 'ddcwwfcsc' ), $max_pp ); ?></span>
+										<?php endif; ?>
+										<?php if ( $unit_price ) : ?>
+											<span class="ddcwwfcsc-price-per">&pound;<?php echo esc_html( number_format( $unit_price, 2 ) ); ?> <?php esc_html_e( 'per ticket', 'ddcwwfcsc' ); ?></span>
+										<?php endif; ?>
+									</div>
+
+									<div class="ddcwwfcsc-form-row ddcwwfcsc-form-row--stepper">
+										<div class="ddcwwfcsc-stepper">
+											<button type="button" class="ddcwwfcsc-stepper-btn ddcwwfcsc-stepper-dec" aria-label="<?php esc_attr_e( 'Decrease', 'ddcwwfcsc' ); ?>">&#8722;</button>
+											<input type="number" name="num_tickets" class="ddcwwfcsc-stepper-input"
+												   value="1" min="1" max="<?php echo esc_attr( $max_selectable ); ?>"
+												   readonly aria-label="<?php esc_attr_e( 'Number of tickets', 'ddcwwfcsc' ); ?>">
+											<button type="button" class="ddcwwfcsc-stepper-btn ddcwwfcsc-stepper-inc" aria-label="<?php esc_attr_e( 'Increase', 'ddcwwfcsc' ); ?>">+</button>
+										</div>
+										<?php if ( $unit_price ) : ?>
+											<span class="ddcwwfcsc-ticket-total"><?php printf( esc_html__( 'Total: %s', 'ddcwwfcsc' ), '£' . number_format( $unit_price, 2 ) ); ?></span>
+										<?php endif; ?>
 									</div>
 
 									<div class="ddcwwfcsc-form-row">
-										<label for="ddcwwfcsc-single-email"><?php esc_html_e( 'Email', 'ddcwwfcsc' ); ?></label>
-										<input type="email" id="ddcwwfcsc-single-email" name="email" value="<?php echo esc_attr( $current_user->user_email ); ?>" required>
-									</div>
-
-									<div class="ddcwwfcsc-form-row">
-										<label for="ddcwwfcsc-single-tickets"><?php esc_html_e( 'Number of Tickets', 'ddcwwfcsc' ); ?></label>
-										<select id="ddcwwfcsc-single-tickets" name="num_tickets" required>
-											<?php for ( $i = 1; $i <= $max_selectable; $i++ ) : ?>
-												<option value="<?php echo esc_attr( $i ); ?>"><?php echo esc_html( $i ); ?></option>
-											<?php endfor; ?>
-										</select>
-									</div>
-
-									<div class="ddcwwfcsc-form-row">
-										<button type="submit" class="ddcwwfcsc-submit-btn"><?php esc_html_e( 'Request Tickets', 'ddcwwfcsc' ); ?></button>
+										<button type="submit" class="btn btn--primary ddcwwfcsc-submit-btn"><?php esc_html_e( 'Request 1 ticket', 'ddcwwfcsc' ); ?></button>
 									</div>
 
 									<div class="ddcwwfcsc-form-message" aria-live="polite"></div>
@@ -300,7 +291,7 @@ if ( $is_home ) {
 				<?php else : ?>
 					<p class="fixture-sidebar-list__empty"><?php esc_html_e( 'No upcoming fixtures scheduled.', 'ddcwwfcsc-theme' ); ?></p>
 				<?php endif; ?>
-				<a href="<?php echo esc_url( get_post_type_archive_link( 'ddcwwfcsc_fixture' ) ); ?>" class="btn btn--sm"><?php esc_html_e( 'View all fixtures', 'ddcwwfcsc-theme' ); ?></a>
+				<a href="<?php echo esc_url( get_post_type_archive_link( 'ddcwwfcsc_fixture' ) ); ?>" class="btn btn--ghost btn--sm"><?php esc_html_e( 'View all fixtures', 'ddcwwfcsc-theme' ); ?></a>
 			</aside>
 
 		</div>

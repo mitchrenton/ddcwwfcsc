@@ -31,17 +31,11 @@ get_header();
 				<?php endif; ?>
 			</header>
 
-			<div class="event-layout">
-				<article id="post-<?php the_ID(); ?>" <?php post_class( 'hentry' ); ?>>
-					<div class="entry-content">
-						<?php the_content(); ?>
-					</div>
-				</article>
-
-				<aside class="event-sidebar">
-					<?php echo DDCWWFCSC_Event_Front::render_signup_form( get_the_ID() ); ?>
-				</aside>
-			</div>
+			<article id="post-<?php the_ID(); ?>" <?php post_class( 'hentry' ); ?>>
+				<div class="entry-content">
+					<?php the_content(); ?>
+				</div>
+			</article>
 		<?php endwhile; ?>
 	</div>
 </main>

@@ -49,7 +49,7 @@ $redirect_to = isset( $_GET['redirect_to'] ) ? rawurlencode( rawurldecode( $_GET
 				<?php esc_html_e( 'Remember me', 'ddcwwfcsc' ); ?>
 			</label>
 
-			<button type="submit" class="ddcwwfcsc-auth-btn">
+			<button type="submit" class="btn btn--primary ddcwwfcsc-auth-btn">
 				<?php esc_html_e( 'Log In', 'ddcwwfcsc' ); ?>
 			</button>
 		</form>

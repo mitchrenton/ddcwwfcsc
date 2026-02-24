@@ -100,24 +100,9 @@
 }
 
 .ddcwwfcsc-payment-btn {
-    display: inline-block;
-    background: var(--color-gold, #d4a843);
-    color: #231f20;
-    text-decoration: none;
     padding: 0.875rem 2rem;
     font-size: 1rem;
     font-weight: 700;
-    border-radius: 4px;
-    transition: background 0.2s ease, transform 0.1s ease;
-}
-
-.ddcwwfcsc-payment-btn:hover {
-    background: var(--color-gold-hover, #c49a35);
-    transform: translateY(-1px);
-}
-
-.ddcwwfcsc-payment-btn:active {
-    transform: translateY(0);
 }
 
 /* Secure badge */

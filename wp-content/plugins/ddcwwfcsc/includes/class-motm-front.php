@@ -298,7 +298,7 @@ class DDCWWFCSC_MOTM_Front {
                 <?php endif; ?>
             </fieldset>
 
-            <button type="submit" class="ddcwwfcsc-motm-submit"><?php esc_html_e( 'Submit Vote', 'ddcwwfcsc' ); ?></button>
+            <button type="submit" class="btn btn--primary ddcwwfcsc-motm-submit"><?php esc_html_e( 'Submit Vote', 'ddcwwfcsc' ); ?></button>
             <div class="ddcwwfcsc-motm-message"></div>
         </form>
         <?php

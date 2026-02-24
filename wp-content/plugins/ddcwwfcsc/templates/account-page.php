@@ -91,7 +91,7 @@ $logout_url = wp_logout_url( home_url( '/' ) );
 						<?php $_shown++; ?>
 					<?php endforeach; ?>
 				</div>
-				<button type="submit" class="ddcwwfcsc-auth-btn">
+				<button type="submit" class="btn btn--primary ddcwwfcsc-auth-btn">
 					<?php esc_html_e( 'Pay annual fee', 'ddcwwfcsc' ); ?>
 				</button>
 			</form>
@@ -120,18 +120,18 @@ $logout_url = wp_logout_url( home_url( '/' ) );
 						<?php echo get_avatar( $current_user->ID, 80, '', $current_user->display_name, array( 'class' => 'ddcwwfcsc-avatar-img' ) ); ?>
 					</div>
 					<div class="ddcwwfcsc-avatar-controls">
-						<label for="avatar_file" class="ddcwwfcsc-auth-btn ddcwwfcsc-auth-btn--secondary ddcwwfcsc-avatar-choose">
+						<label for="avatar_file" class="btn btn--ghost ddcwwfcsc-auth-btn ddcwwfcsc-avatar-choose">
 							<?php esc_html_e( 'Choose Photo', 'ddcwwfcsc' ); ?>
 						</label>
 						<input type="file" id="avatar_file" name="avatar" accept="image/*">
-						<button type="submit" class="ddcwwfcsc-auth-btn ddcwwfcsc-auth-btn--secondary ddcwwfcsc-avatar-save" style="display:none">
+						<button type="submit" class="btn btn--ghost ddcwwfcsc-auth-btn ddcwwfcsc-avatar-save" style="display:none">
 							<?php esc_html_e( 'Save Photo', 'ddcwwfcsc' ); ?>
 						</button>
 					</div>
 				</div>
 
 				<?php if ( $has_avatar ) : ?>
-					<button type="submit" name="remove_avatar" value="1" class="ddcwwfcsc-avatar-remove">
+					<button type="submit" name="remove_avatar" value="1" class="btn btn--ghost ddcwwfcsc-auth-btn ddcwwfcsc-avatar-remove">
 						<?php esc_html_e( 'Remove photo', 'ddcwwfcsc' ); ?>
 					</button>
 				<?php endif; ?>
@@ -182,7 +182,7 @@ $logout_url = wp_logout_url( home_url( '/' ) );
 						value="<?php echo esc_attr( $current_user->user_email ); ?>">
 				</div>
 
-				<button type="submit" class="ddcwwfcsc-auth-btn ddcwwfcsc-auth-btn--secondary">
+				<button type="submit" class="btn btn--ghost ddcwwfcsc-auth-btn">
 					<?php esc_html_e( 'Update Email', 'ddcwwfcsc' ); ?>
 				</button>
 			</form>
@@ -218,7 +218,7 @@ $logout_url = wp_logout_url( home_url( '/' ) );
 					<input type="password" name="new_password2" id="new_password2" autocomplete="new-password" required minlength="8">
 				</div>
 
-				<button type="submit" class="ddcwwfcsc-auth-btn ddcwwfcsc-auth-btn--secondary">
+				<button type="submit" class="btn btn--ghost ddcwwfcsc-auth-btn">
 					<?php esc_html_e( 'Update Password', 'ddcwwfcsc' ); ?>
 				</button>
 			</form>

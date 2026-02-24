@@ -48,7 +48,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             <h1><?php esc_html_e( 'Payment Cancelled', 'ddcwwfcsc' ); ?></h1>
             <p><?php esc_html_e( 'You cancelled the payment. You can try again using the button below.', 'ddcwwfcsc' ); ?></p>
             <div class="ddcwwfcsc-payment-actions">
-                <a href="<?php echo esc_url( DDCWWFCSC_Payments::get_payment_url( $request->payment_token ) ); ?>" class="ddcwwfcsc-payment-btn">
+                <a href="<?php echo esc_url( DDCWWFCSC_Payments::get_payment_url( $request->payment_token ) ); ?>" class="btn btn--primary ddcwwfcsc-payment-btn">
                     <?php esc_html_e( 'Try Again', 'ddcwwfcsc' ); ?>
                 </a>
             </div>
@@ -94,7 +94,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
 
             <div class="ddcwwfcsc-payment-actions">
-                <a href="<?php echo esc_url( $checkout_url ); ?>" class="ddcwwfcsc-payment-btn">
+                <a href="<?php echo esc_url( $checkout_url ); ?>" class="btn btn--primary ddcwwfcsc-payment-btn">
                     <?php printf(
                         /* translators: %s: formatted amount */
                         esc_html__( 'Pay Now — %s', 'ddcwwfcsc' ),

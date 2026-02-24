@@ -136,40 +136,14 @@
 	cursor: pointer;
 }
 
-/* Submit button */
+/* Full-width button wrapper — gold/ghost styling via btn--primary / btn--ghost */
 .ddcwwfcsc-auth-btn {
-	display: block;
+	display: flex;
 	width: 100%;
-	background: var(--color-gold, #d4a843);
-	color: #231f20;
-	border: none;
+	justify-content: center;
 	padding: 0.875rem 1.5rem;
 	font-size: 1rem;
 	font-weight: 700;
-	font-family: inherit;
-	border-radius: 4px;
-	cursor: pointer;
-	text-align: center;
-	transition: background 0.2s ease, transform 0.1s ease;
-	text-decoration: none;
-}
-
-.ddcwwfcsc-auth-btn:hover {
-	background: #c49a3a;
-	transform: translateY(-1px);
-}
-
-.ddcwwfcsc-auth-btn:active {
-	transform: translateY(0);
-}
-
-.ddcwwfcsc-auth-btn--secondary {
-	background: #f0f0f0;
-	color: #231f20;
-}
-
-.ddcwwfcsc-auth-btn--secondary:hover {
-	background: #e0e0e0;
 }
 
 /* Account page: status block */
@@ -272,18 +246,11 @@
 }
 
 .ddcwwfcsc-avatar-remove {
-	background: none;
-	border: none;
-	padding: 0;
-	margin-top: 0.25rem;
-	font-size: 0.8rem;
-	color: #888;
-	cursor: pointer;
-	text-decoration: underline;
-	font-family: inherit;
+	margin-top: 0.5rem;
 }
 
 .ddcwwfcsc-avatar-remove:hover {
+	border-color: #d63638;
 	color: #d63638;
 }
 
@@ -415,11 +382,8 @@
 	border-color: #444;
 }
 
-[data-theme="dark"] .ddcwwfcsc-avatar-remove {
-	color: #666;
-}
-
 [data-theme="dark"] .ddcwwfcsc-avatar-remove:hover {
+	border-color: #f5a3a3;
 	color: #f5a3a3;
 }
 

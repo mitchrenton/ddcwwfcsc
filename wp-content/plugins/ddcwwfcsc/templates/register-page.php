@@ -76,7 +76,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<input type="password" name="password2" id="password2" autocomplete="new-password" required minlength="8">
 				</div>
 
-				<button type="submit" class="ddcwwfcsc-auth-btn">
+				<button type="submit" class="btn btn--primary ddcwwfcsc-auth-btn">
 					<?php esc_html_e( 'Create Account', 'ddcwwfcsc' ); ?>
 				</button>
 			</form>

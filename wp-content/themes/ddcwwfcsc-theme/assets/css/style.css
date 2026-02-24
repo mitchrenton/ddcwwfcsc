@@ -701,14 +701,15 @@ input[type="submit"]:hover {
 	color: var(--color-black);
 }
 
-.btn--ghost {
+.btn.btn--ghost {
 	background: transparent;
 	color: var(--text);
 	border-color: var(--border-strong);
 }
 
-.btn--ghost:hover,
-.btn--ghost:focus {
+.btn.btn--ghost:hover,
+.btn.btn--ghost:focus {
+	background: transparent;
 	border-color: var(--color-gold);
 	color: var(--color-gold);
 }
@@ -1091,48 +1092,6 @@ label {
 	}
 }
 
-/* Event sidebar layout */
-.event-layout {
-	display: grid;
-	grid-template-columns: 1fr 300px;
-	gap: var(--space-xl);
-	align-items: start;
-}
-
-.event-sidebar {
-	position: sticky;
-	top: var(--space-lg);
-}
-
-.event-sidebar .ddcwwfcsc-event-signup-section {
-	background: var(--bg-card);
-	border: 1px solid var(--border);
-	border-radius: var(--radius-lg);
-	padding: var(--space-md);
-}
-
-.event-sidebar .ddcwwfcsc-event-signup-form {
-	flex-direction: column;
-	align-items: stretch;
-}
-
-.event-sidebar .ddcwwfcsc-event-signup-field {
-	flex: none;
-}
-
-.event-sidebar .ddcwwfcsc-event-signup-btn {
-	width: 100%;
-}
-
-@media (max-width: 768px) {
-	.event-layout {
-		grid-template-columns: 1fr;
-	}
-
-	.event-sidebar {
-		position: static;
-	}
-}
 
 /* Card layout for archives */
 .card {
@@ -1464,6 +1423,15 @@ label {
 .fixture-hero__heading {
 	font-size: 2rem;
 	margin-bottom: var(--space-sm);
+}
+
+.hero__fixture-meta {
+	font-size: 0.9375rem;
+	color: rgba(255, 255, 255, 0.75);
+	margin-bottom: 0;
+	font-family: var(--font-body);
+	font-weight: 400;
+	letter-spacing: 0.02em;
 }
 
 /* Two-column layout: main content + sidebar */

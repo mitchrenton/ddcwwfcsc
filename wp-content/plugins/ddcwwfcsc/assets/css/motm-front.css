@@ -88,19 +88,7 @@
 
 .ddcwwfcsc-motm-submit {
     margin-top: 0.75em;
-    padding: 0.55em 1.5em;
-    background: var(--color-gold);
-    color: var(--color-black);
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 1em;
-    font-weight: 600;
-    cursor: pointer;
     white-space: nowrap;
-}
-
-.ddcwwfcsc-motm-submit:hover {
-    background: var(--color-gold-hover);
 }
 
 .ddcwwfcsc-motm-submit:disabled {
