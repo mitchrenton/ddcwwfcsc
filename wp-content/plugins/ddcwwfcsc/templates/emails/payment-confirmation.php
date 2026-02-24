@@ -55,7 +55,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
             <p><?php esc_html_e( 'Please arrive in good time on match day to collect your tickets.', 'ddcwwfcsc' ); ?></p>
 
-            <p><?php esc_html_e( 'If you have any questions, please contact the club president.', 'ddcwwfcsc' ); ?></p>
+            <p><?php esc_html_e( 'If you have any questions, please contact Coxy.', 'ddcwwfcsc' ); ?></p>
         </div>
         <div class="footer">
             <p><?php echo esc_html( get_bloginfo( 'description' ) ); ?></p>

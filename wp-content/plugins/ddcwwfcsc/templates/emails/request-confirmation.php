@@ -55,7 +55,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
             <p><?php esc_html_e( 'Your request is being reviewed. Once approved, you will receive a payment link by email.', 'ddcwwfcsc' ); ?></p>
 
-            <p><?php esc_html_e( 'If you need to cancel your request, please contact the club president.', 'ddcwwfcsc' ); ?></p>
+            <p><?php esc_html_e( 'If you need to cancel your request, please contact Coxy.', 'ddcwwfcsc' ); ?></p>
         </div>
         <div class="footer">
             <p><?php echo esc_html( get_bloginfo( 'description' ) ); ?></p>

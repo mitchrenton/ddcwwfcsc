@@ -69,7 +69,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <?php esc_html_e( 'This payment link expires in 24 hours. If you do not complete payment in time, your ticket request will be cancelled and the tickets returned to the pool.', 'ddcwwfcsc' ); ?>
             </div>
 
-            <p><?php esc_html_e( 'If you have any questions, please contact the club president.', 'ddcwwfcsc' ); ?></p>
+            <p><?php esc_html_e( 'If you have any questions, please contact Coxy.', 'ddcwwfcsc' ); ?></p>
         </div>
         <div class="footer">
             <p><?php echo esc_html( get_bloginfo( 'description' ) ); ?></p>

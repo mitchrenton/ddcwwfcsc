@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         <div class="ddcwwfcsc-payment-card ddcwwfcsc-payment-message">
             <h1><?php esc_html_e( 'Payment Link Expired', 'ddcwwfcsc' ); ?></h1>
-            <p><?php esc_html_e( 'This payment link has expired. Please contact the club to arrange an alternative.', 'ddcwwfcsc' ); ?></p>
+            <p><?php esc_html_e( 'This payment link has expired. Please contact Coxy to arrange an alternative.', 'ddcwwfcsc' ); ?></p>
         </div>
 
     <?php elseif ( 'already_paid' === $state ) : ?>

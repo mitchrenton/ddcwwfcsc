@@ -94,7 +94,7 @@ $archive_url = get_post_type_archive_link( 'ddcwwfcsc_fixture' );
 				<h2 class="section-heading"><?php esc_html_e( 'Fixtures', 'ddcwwfcsc-theme' ); ?></h2>
 				<ul class="fixture-list">
 					<?php while ( $upcoming->have_posts() ) : $upcoming->the_post(); ?>
-						<?php get_template_part( 'template-parts/content/content', 'fixture' ); ?>
+						<?php get_template_part( 'template-parts/content/content', 'fixture', array( 'context' => 'upcoming' ) ); ?>
 					<?php endwhile; ?>
 				</ul>
 			</section>
@@ -106,7 +106,7 @@ $archive_url = get_post_type_archive_link( 'ddcwwfcsc_fixture' );
 				<h2 class="section-heading"><?php esc_html_e( 'Results', 'ddcwwfcsc-theme' ); ?></h2>
 				<ul class="fixture-list">
 					<?php while ( $results->have_posts() ) : $results->the_post(); ?>
-						<?php get_template_part( 'template-parts/content/content', 'fixture' ); ?>
+						<?php get_template_part( 'template-parts/content/content', 'fixture', array( 'context' => 'results' ) ); ?>
 					<?php endwhile; ?>
 				</ul>
 			</section>

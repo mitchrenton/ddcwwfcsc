@@ -1266,10 +1266,7 @@ label {
 }
 
 .fixture-list__item {
-	display: flex;
-	align-items: center;
-	gap: var(--space-lg);
-	padding: var(--space-lg);
+	padding: var(--space-xl) var(--space-lg);
 	border-bottom: 1px solid var(--border);
 	transition: background var(--transition);
 }
@@ -1278,14 +1275,37 @@ label {
 	background: var(--bg-alt);
 }
 
+.fixture-list__link {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+}
+
+.fixture-list__header {
+	text-align: center;
+	margin-bottom: var(--space-md);
+}
+
+.fixture-list__date {
+	font-family: var(--font-heading);
+	font-size: 1.125rem;
+	font-weight: 700;
+	color: var(--text-heading);
+	margin: 0 0 2px;
+}
+
+.fixture-list__competition {
+	font-size: 0.875rem;
+	color: var(--text-muted);
+	margin: 0;
+}
+
 .fixture-list__matchup {
 	display: flex;
 	align-items: center;
 	gap: var(--space-md);
-	flex: 1;
-	min-width: 0;
-	text-decoration: none;
-	color: inherit;
+	max-width: 640px;
+	margin: 0 auto;
 }
 
 .fixture-list__team {
@@ -1319,6 +1339,16 @@ label {
 	flex-shrink: 0;
 }
 
+.fixture-list__time {
+	font-family: var(--font-heading);
+	font-size: 1.75rem;
+	font-weight: 700;
+	color: var(--text-heading);
+	flex-shrink: 0;
+	min-width: 80px;
+	text-align: center;
+}
+
 .fixture-list__vs {
 	font-size: 0.8125rem;
 	font-weight: 600;
@@ -1326,13 +1356,69 @@ label {
 	flex-shrink: 0;
 }
 
-.fixture-list__score {
+.fixture-list__score-wrap {
+	display: flex;
+	align-items: center;
+	gap: var(--space-xs);
+	flex-shrink: 0;
+	min-width: 80px;
+	justify-content: center;
+}
+
+.fixture-list__score-val {
 	font-family: var(--font-heading);
-	font-size: 1.25rem;
+	font-size: 1.75rem;
 	font-weight: 700;
 	color: var(--text-heading);
-	flex-shrink: 0;
-	letter-spacing: 0.05em;
+	min-width: 1.5ch;
+	text-align: center;
+}
+
+.fixture-list__score-sep {
+	color: var(--color-gold);
+	font-size: 1.5rem;
+	font-weight: 300;
+}
+
+.fixture-list__ft {
+	text-align: center;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--text-muted);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	margin: var(--space-xs) 0 0;
+}
+
+.fixture-list__labels {
+	display: flex;
+	justify-content: center;
+	gap: var(--space-xs);
+	margin-top: var(--space-md);
+	flex-wrap: wrap;
+}
+
+.fixture-list__label {
+	display: inline-block;
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	padding: 3px var(--space-sm);
+	border-radius: 999px;
+	border: 1px solid currentColor;
+}
+
+.fixture-list__label--tickets {
+	color: var(--color-gold);
+}
+
+.fixture-list__label--beerwolf {
+	color: var(--color-gold);
+}
+
+.fixture-list__label--motm {
+	color: var(--color-gold);
 }
 
 .fixture-archive-section {
@@ -1341,30 +1427,6 @@ label {
 
 .fixture-archive-section:last-child {
 	margin-bottom: 0;
-}
-
-.fixture-list__meta {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-end;
-	gap: 2px;
-	flex-shrink: 0;
-}
-
-.fixture-list__date {
-	font-size: 0.8125rem;
-	color: var(--text-muted);
-}
-
-.fixture-list__competition {
-	font-size: 0.6875rem;
-	color: var(--text-muted);
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-}
-
-.fixture-list__meta .badge {
-	align-self: flex-end;
 }
 
 /* Hero modifier for fixture single pages */
@@ -1449,13 +1511,19 @@ label {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
-	padding: var(--space-sm) 0;
+	padding: var(--space-sm) var(--space-xs);
+	margin: 0 calc(-1 * var(--space-xs));
+	border-radius: var(--radius);
 	text-decoration: none;
 	color: inherit;
-	transition: color var(--transition);
+	transition: background var(--transition), color var(--transition);
 }
 
 .fixture-sidebar-list__link:hover {
+	background: var(--bg-alt);
+}
+
+.fixture-sidebar-list__link:hover .fixture-sidebar-list__teams {
 	color: var(--color-gold);
 }
 
@@ -2247,27 +2315,17 @@ label {
 	.fixture-hero__heading { font-size: 1.5rem; }
 	.fixture-hero-badge    { width: 52px; height: 52px; }
 
-	/* Archive list: let meta drop to its own line below the matchup */
 	.fixture-list__item {
-		flex-wrap: wrap;
-		gap: var(--space-xs) var(--space-md);
-		padding: var(--space-md) var(--space-sm);
-	}
-
-	.fixture-list__matchup {
-		width: 100%;
-	}
-
-	.fixture-list__meta {
-		width: 100%;
-		flex-direction: row;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--space-xs) var(--space-sm);
+		padding: var(--space-lg) var(--space-sm);
 	}
 
 	.fixture-list__date {
-		flex: 1;
+		font-size: 1rem;
+	}
+
+	.fixture-list__time,
+	.fixture-list__score-val {
+		font-size: 1.375rem;
 	}
 
 	.fixture-list__badge {
@@ -2392,15 +2450,6 @@ label {
 	.grid--3 { grid-template-columns: repeat(2, 1fr); }
 	.grid--4 { grid-template-columns: repeat(2, 1fr); }
 
-	.fixture-list__item {
-		flex-wrap: wrap;
-		gap: var(--space-sm) var(--space-md);
-	}
-
-	.fixture-list__matchup {
-		width: 100%;
-	}
-
 	.fixture-list__team-name {
 		font-size: 0.9375rem;
 	}
@@ -2408,10 +2457,6 @@ label {
 	.fixture-list__badge {
 		width: 32px;
 		height: 32px;
-	}
-
-	.fixture-list__meta {
-		align-items: flex-start;
 	}
 
 	.homepage-section__grid { grid-template-columns: 1fr; }
@@ -2443,6 +2488,60 @@ label {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 	gap: var(--space-xl);
+}
+
+/* MOTM callout banner */
+.motm-callout {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-lg);
+	padding: var(--space-lg) var(--space-xl);
+	background: var(--bg-card);
+	border: 2px solid var(--color-gold);
+	border-radius: var(--radius);
+	text-decoration: none;
+	color: inherit;
+	transition: background var(--transition), box-shadow var(--transition);
+}
+
+.motm-callout:hover {
+	background: var(--bg-alt);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.motm-callout__label {
+	font-size: 0.8125rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--color-gold);
+	margin: 0 0 var(--space-xs);
+}
+
+.motm-callout__match {
+	font-family: var(--font-heading);
+	font-size: 1.0625rem;
+	font-weight: 700;
+	margin: 0;
+}
+
+.motm-callout__cta {
+	flex-shrink: 0;
+	display: inline-block;
+	padding: var(--space-xs) var(--space-lg);
+	border: 2px solid var(--color-gold);
+	border-radius: 999px;
+	font-size: 0.875rem;
+	font-weight: 700;
+	color: var(--color-gold);
+	white-space: nowrap;
+	transition: background var(--transition), color var(--transition);
+}
+
+.motm-callout:hover .motm-callout__cta {
+	background: var(--color-gold);
+	color: #231f20;
 }
 
 /* Ticket modal dialog */

@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php if ( ! $invite ) : ?>
 
 			<div class="ddcwwfcsc-auth-notice ddcwwfcsc-auth-notice--error">
-				<?php esc_html_e( 'This invite link is invalid or has already been used. Please contact the club president.', 'ddcwwfcsc' ); ?>
+				<?php esc_html_e( 'This invite link is invalid or has already been used. Please contact Coxy.', 'ddcwwfcsc' ); ?>
 			</div>
 
 		<?php else : ?>

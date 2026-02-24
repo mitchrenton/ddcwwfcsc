@@ -1,62 +1,54 @@
 ( function ( blocks, element, blockEditor, components ) {
-    var el              = element.createElement;
-    var useBlockProps   = blockEditor.useBlockProps;
+    var el               = element.createElement;
+    var useBlockProps    = blockEditor.useBlockProps;
     var InspectorControls = blockEditor.InspectorControls;
-    var PanelBody       = components.PanelBody;
-    var RangeControl    = components.RangeControl;
-    var Button          = components.Button;
-
-    /**
-     * Open the WordPress media library and call onSelect with the updated image array.
-     */
-    function openMediaLibrary( currentImages, onSelect ) {
-        var frame = wp.media( {
-            title:   currentImages.length ? 'Add to Gallery' : 'Create Gallery',
-            button:  { text: currentImages.length ? 'Add to Gallery' : 'Create Gallery' },
-            multiple: true,
-            library: { type: 'image' },
-        } );
-
-        frame.on( 'select', function () {
-            var selection  = frame.state().get( 'selection' );
-            var newImages  = [];
-
-            selection.each( function ( attachment ) {
-                var data  = attachment.toJSON();
-                var sizes = data.sizes || {};
-                var thumb = ( sizes.large || sizes.medium_large || sizes.medium || sizes.full || {} ).url || data.url;
-
-                newImages.push( {
-                    id:      data.id,
-                    url:     thumb,
-                    fullUrl: data.url,
-                    alt:     data.alt     || '',
-                    caption: data.caption || '',
-                } );
-            } );
-
-            onSelect( currentImages.concat( newImages ) );
-        } );
-
-        frame.open();
-    }
+    var MediaUpload      = blockEditor.MediaUpload;
+    var MediaUploadCheck = blockEditor.MediaUploadCheck;
+    var PanelBody        = components.PanelBody;
+    var RangeControl     = components.RangeControl;
+    var Button           = components.Button;
 
     blocks.registerBlockType( 'ddcwwfcsc/gallery', {
 
         edit: function ( props ) {
-            var images  = props.attributes.images  || [];
-            var columns = props.attributes.columns || 3;
+            var images     = props.attributes.images  || [];
+            var columns    = props.attributes.columns || 3;
             var blockProps = useBlockProps();
 
-            function addImages() {
-                openMediaLibrary( images, function ( updated ) {
-                    props.setAttributes( { images: updated } );
+            /**
+             * Called by MediaUpload when the user confirms their selection.
+             * With multiple: true, `selection` is an array of attachment objects.
+             */
+            function onSelectImages( selection ) {
+                var attachments = Array.isArray( selection ) ? selection : [ selection ];
+
+                var newImages = attachments.map( function ( attachment ) {
+                    var sizes   = attachment.sizes || {};
+                    var thumbUrl = (
+                        ( sizes.large        || {} ).url ||
+                        ( sizes.medium_large || {} ).url ||
+                        ( sizes.medium       || {} ).url ||
+                        ( sizes.full         || {} ).url ||
+                        attachment.url
+                    );
+                    var fullUrl = ( sizes.full || {} ).url || attachment.url;
+
+                    return {
+                        id:      attachment.id,
+                        url:     thumbUrl,
+                        fullUrl: fullUrl,
+                        alt:     attachment.alt     || '',
+                        caption: attachment.caption || '',
+                    };
                 } );
+
+                props.setAttributes( { images: images.concat( newImages ) } );
             }
 
             function removeImage( index ) {
-                var updated = images.filter( function ( _, i ) { return i !== index; } );
-                props.setAttributes( { images: updated } );
+                props.setAttributes( {
+                    images: images.filter( function ( _, i ) { return i !== index; } ),
+                } );
             }
 
             // Inspector panel.
@@ -68,50 +60,59 @@
                         label:    'Columns',
                         value:    columns,
                         onChange: function ( val ) { props.setAttributes( { columns: val } ); },
-                        min: 2,
-                        max: 4,
+                        min:      2,
+                        max:      4,
                     } )
                 )
             );
 
-            // Empty state.
+            // Empty state — show upload placeholder.
             if ( images.length === 0 ) {
                 return el(
                     'div',
                     blockProps,
                     inspector,
-                    el(
-                        'div',
-                        {
-                            style: {
-                                border:          '2px dashed #FDB913',
-                                borderRadius:    '8px',
-                                padding:         '48px 24px',
-                                textAlign:       'center',
-                                backgroundColor: '#fffdf0',
-                                cursor:          'pointer',
+                    el( MediaUploadCheck, null,
+                        el( MediaUpload, {
+                            onSelect:     onSelectImages,
+                            allowedTypes: [ 'image' ],
+                            multiple:     true,
+                            render: function ( obj ) {
+                                return el(
+                                    'div',
+                                    {
+                                        style: {
+                                            border:          '2px dashed #FDB913',
+                                            borderRadius:    '8px',
+                                            padding:         '48px 24px',
+                                            textAlign:       'center',
+                                            backgroundColor: '#fffdf0',
+                                            cursor:          'pointer',
+                                        },
+                                        onClick: obj.open,
+                                    },
+                                    el( 'span', {
+                                        className: 'dashicons dashicons-format-gallery',
+                                        style: {
+                                            fontSize:  '40px',
+                                            width:     '40px',
+                                            height:    '40px',
+                                            display:   'block',
+                                            margin:    '0 auto 12px',
+                                            color:     '#FDB913',
+                                        },
+                                    } ),
+                                    el( 'p', { style: { fontWeight: '600', margin: '0 0 6px', fontSize: '15px' } }, 'Image Gallery' ),
+                                    el( 'p', { style: { color: '#666', margin: '0 0 16px', fontSize: '13px' } }, 'Click to select images — hold Shift or Ctrl to pick multiple' ),
+                                    el( Button, { variant: 'primary', onClick: obj.open }, 'Add Images' )
+                                );
                             },
-                            onClick: addImages,
-                        },
-                        el( 'span', {
-                            className: 'dashicons dashicons-format-gallery',
-                            style: {
-                                fontSize:     '40px',
-                                width:        '40px',
-                                height:       '40px',
-                                display:      'block',
-                                margin:       '0 auto 12px',
-                                color:        '#FDB913',
-                            },
-                        } ),
-                        el( 'p', { style: { fontWeight: '600', margin: '0 0 6px', fontSize: '15px' } }, 'Image Gallery' ),
-                        el( 'p', { style: { color: '#666', margin: '0 0 16px', fontSize: '13px' } }, 'Click to add images from the media library' ),
-                        el( Button, { variant: 'primary', onClick: addImages }, 'Add Images' )
+                        } )
                     )
                 );
             }
 
-            // Grid preview.
+            // Grid preview with remove buttons.
             var gridItems = images.map( function ( image, idx ) {
                 return el(
                     'div',
@@ -129,12 +130,12 @@
                         src:   image.url,
                         alt:   image.alt,
                         style: {
-                            position:   'absolute',
-                            inset:      0,
-                            width:      '100%',
-                            height:     '100%',
-                            objectFit:  'cover',
-                            display:    'block',
+                            position:  'absolute',
+                            inset:     0,
+                            width:     '100%',
+                            height:    '100%',
+                            objectFit: 'cover',
+                            display:   'block',
                         },
                     } ),
                     el(
@@ -143,22 +144,22 @@
                             onClick: function ( e ) { e.stopPropagation(); removeImage( idx ); },
                             title:   'Remove image',
                             style: {
-                                position:        'absolute',
-                                top:             '4px',
-                                right:           '4px',
-                                width:           '24px',
-                                height:          '24px',
-                                border:          'none',
-                                borderRadius:    '50%',
-                                background:      'rgba(0,0,0,0.6)',
-                                color:           '#fff',
-                                cursor:          'pointer',
-                                display:         'flex',
-                                alignItems:      'center',
-                                justifyContent:  'center',
-                                fontSize:        '14px',
-                                lineHeight:      1,
-                                padding:         0,
+                                position:       'absolute',
+                                top:            '4px',
+                                right:          '4px',
+                                width:          '24px',
+                                height:         '24px',
+                                border:         'none',
+                                borderRadius:   '50%',
+                                background:     'rgba(0,0,0,0.6)',
+                                color:          '#fff',
+                                cursor:         'pointer',
+                                display:        'flex',
+                                alignItems:     'center',
+                                justifyContent: 'center',
+                                fontSize:       '14px',
+                                lineHeight:     1,
+                                padding:        0,
                             },
                         },
                         '×'
@@ -174,18 +175,23 @@
                     'div',
                     {
                         style: {
-                            display:              'grid',
-                            gridTemplateColumns:  'repeat(' + columns + ', 1fr)',
-                            gap:                  '8px',
-                            marginBottom:         '12px',
+                            display:             'grid',
+                            gridTemplateColumns: 'repeat(' + columns + ', 1fr)',
+                            gap:                 '8px',
+                            marginBottom:        '12px',
                         },
                     },
                     gridItems
                 ),
-                el(
-                    'div',
-                    { style: { display: 'flex', gap: '8px' } },
-                    el( Button, { variant: 'secondary', onClick: addImages }, '+ Add More Images' )
+                el( MediaUploadCheck, null,
+                    el( MediaUpload, {
+                        onSelect:     onSelectImages,
+                        allowedTypes: [ 'image' ],
+                        multiple:     true,
+                        render: function ( obj ) {
+                            return el( Button, { variant: 'secondary', onClick: obj.open }, '+ Add More Images' );
+                        },
+                    } )
                 )
             );
         },

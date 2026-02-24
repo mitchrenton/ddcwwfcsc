@@ -168,7 +168,7 @@ class DDCWWFCSC_Payments {
         $secret_key = get_option( 'ddcwwfcsc_stripe_secret_key', '' );
 
         if ( empty( $secret_key ) ) {
-            wp_die( esc_html__( 'Stripe is not configured. Please contact the club.', 'ddcwwfcsc' ) );
+            wp_die( esc_html__( 'Stripe is not configured. Please contact Coxy.', 'ddcwwfcsc' ) );
         }
 
         \Stripe\Stripe::setApiKey( $secret_key );
@@ -234,7 +234,7 @@ class DDCWWFCSC_Payments {
             exit;
         } catch ( \Exception $e ) {
             error_log( 'DDCWWFCSC Stripe error: ' . $e->getMessage() );
-            wp_die( esc_html__( 'Unable to connect to the payment provider. Please try again or contact the club.', 'ddcwwfcsc' ) );
+            wp_die( esc_html__( 'Unable to connect to the payment provider. Please try again or contact Coxy.', 'ddcwwfcsc' ) );
         }
     }
 
@@ -403,12 +403,12 @@ class DDCWWFCSC_Payments {
 
         $fee = (float) get_option( $fee_options[ $type ], 0 );
         if ( $fee <= 0 ) {
-            wp_die( esc_html__( 'That membership type is not currently available. Please contact the club.', 'ddcwwfcsc' ) );
+            wp_die( esc_html__( 'That membership type is not currently available. Please contact Coxy.', 'ddcwwfcsc' ) );
         }
 
         $secret_key = get_option( 'ddcwwfcsc_stripe_secret_key', '' );
         if ( empty( $secret_key ) ) {
-            wp_die( esc_html__( 'Stripe is not configured. Please contact the club.', 'ddcwwfcsc' ) );
+            wp_die( esc_html__( 'Stripe is not configured. Please contact Coxy.', 'ddcwwfcsc' ) );
         }
 
         \Stripe\Stripe::setApiKey( $secret_key );
@@ -455,7 +455,7 @@ class DDCWWFCSC_Payments {
             exit;
         } catch ( \Exception $e ) {
             error_log( 'DDCWWFCSC Membership Stripe error: ' . $e->getMessage() );
-            wp_die( esc_html__( 'Unable to connect to the payment provider. Please try again or contact the club.', 'ddcwwfcsc' ) );
+            wp_die( esc_html__( 'Unable to connect to the payment provider. Please try again or contact Coxy.', 'ddcwwfcsc' ) );
         }
     }
 

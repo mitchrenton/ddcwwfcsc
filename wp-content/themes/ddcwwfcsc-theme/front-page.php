@@ -12,6 +12,7 @@ get_template_part( 'template-parts/homepage/hero' );
 
 <main class="site-main" role="main">
 	<div class="container">
+		<?php get_template_part( 'template-parts/homepage/motm-vote' ); ?>
 		<?php get_template_part( 'template-parts/homepage/fixtures-preview' ); ?>
 		<?php get_template_part( 'template-parts/homepage/events-preview' ); ?>
 		<?php get_template_part( 'template-parts/homepage/honorary-preview' ); ?>

@@ -16,9 +16,10 @@ $speed = isset( $attributes['speed'] ) ? (int) $attributes['speed'] : 30;
 
 $speed = max( 5, min( 120, $speed ) );
 
-$bulletins = DDCWWFCSC_Bulletin_CPT::get_active_bulletins( $limit );
+$bulletins   = DDCWWFCSC_Bulletin_CPT::get_active_bulletins( $limit );
+$extra_texts = apply_filters( 'ddcwwfcsc_bulletin_extra_texts', array() );
 
-if ( empty( $bulletins ) ) {
+if ( empty( $bulletins ) && empty( $extra_texts ) ) {
     return;
 }
 

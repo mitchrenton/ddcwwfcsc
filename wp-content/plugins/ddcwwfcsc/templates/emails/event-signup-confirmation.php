@@ -64,7 +64,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <?php endif; ?>
             </div>
 
-            <p><?php esc_html_e( 'If you need to cancel, please contact the club president.', 'ddcwwfcsc' ); ?></p>
+            <p><?php esc_html_e( 'If you need to cancel, please contact Coxy.', 'ddcwwfcsc' ); ?></p>
         </div>
         <div class="footer">
             <p><?php echo esc_html( get_bloginfo( 'description' ) ); ?></p>

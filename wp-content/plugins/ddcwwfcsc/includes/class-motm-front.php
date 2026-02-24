@@ -16,6 +16,71 @@ class DDCWWFCSC_MOTM_Front {
         add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
         add_action( 'wp_ajax_ddcwwfcsc_motm_vote', array( __CLASS__, 'handle_vote' ) );
         add_action( 'ddcwwfcsc_motm_lineup_ready', array( __CLASS__, 'send_vote_reminder' ) );
+        add_filter( 'ddcwwfcsc_bulletin_extra_texts', array( __CLASS__, 'inject_motm_ticker_item' ) );
+    }
+
+    /**
+     * Find the most recent fixture that currently has voting open.
+     *
+     * @return int|null Fixture post ID or null if none.
+     */
+    public static function get_open_vote_fixture() {
+        $fixtures = get_posts( array(
+            'post_type'      => 'ddcwwfcsc_fixture',
+            'post_status'    => 'publish',
+            'posts_per_page' => 5,
+            'meta_key'       => '_ddcwwfcsc_match_date',
+            'orderby'        => 'meta_value',
+            'order'          => 'DESC',
+            'meta_query'     => array( array(
+                'key'   => '_ddcwwfcsc_fd_status',
+                'value' => 'FINISHED',
+            ) ),
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+        ) );
+
+        foreach ( $fixtures as $fixture_id ) {
+            if ( self::is_voting_open( $fixture_id ) ) {
+                return $fixture_id;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Inject a MOTM voting prompt into the bulletin ticker for logged-in members
+     * who have not yet voted on the currently open fixture.
+     *
+     * @param string[] $items Existing extra ticker text items.
+     * @return string[]
+     */
+    public static function inject_motm_ticker_item( $items ) {
+        if ( ! is_user_logged_in() ) {
+            return $items;
+        }
+
+        $fixture_id = self::get_open_vote_fixture();
+        if ( ! $fixture_id ) {
+            return $items;
+        }
+
+        $user_vote = DDCWWFCSC_MOTM_Votes::get_user_vote( $fixture_id, get_current_user_id() );
+        if ( $user_vote ) {
+            return $items;
+        }
+
+        $opponent      = class_exists( 'DDCWWFCSC_Fixture_CPT' ) ? DDCWWFCSC_Fixture_CPT::get_opponent( $fixture_id ) : null;
+        $opponent_name = $opponent ? $opponent['name'] : get_the_title( $fixture_id );
+
+        $items[] = sprintf(
+            /* translators: %s: opponent name */
+            __( 'Man of the Match — vote now for Wolves v %s', 'ddcwwfcsc' ),
+            $opponent_name
+        );
+
+        return $items;
     }
 
     /**
