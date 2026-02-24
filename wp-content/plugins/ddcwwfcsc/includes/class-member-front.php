@@ -282,18 +282,40 @@ class DDCWWFCSC_Member_Front {
 			'junior'        => (float) get_option( 'ddcwwfcsc_membership_fee_junior', 0 ),
 		);
 
-		// Show a success message when returning from a successful membership payment.
-		// Also optimistically mark as paid — the Stripe webhook may not have fired yet.
+		// When returning from a successful membership checkout, verify with Stripe and persist
+		// the paid status — the webhook may not have fired yet (e.g. on staging/localhost).
 		if ( ! $success && isset( $_GET['payment_status'] ) && 'membership_paid' === sanitize_key( $_GET['payment_status'] ) ) {
-			$success = $current_season
-				? sprintf(
-					/* translators: %s: season name e.g. "2024/25" */
-					__( 'Annual fee paid for %s — thank you!', 'ddcwwfcsc' ),
-					$current_season
-				)
-				: __( 'Annual fee paid — thank you!', 'ddcwwfcsc' );
-			$is_paid     = true;
-			$paid_season = $current_season;
+			if ( ! $is_paid ) {
+				$session_id = get_user_meta( $current_user->ID, '_ddcwwfcsc_membership_session_id', true );
+				if ( $session_id ) {
+					$secret_key = get_option( 'ddcwwfcsc_stripe_secret_key', '' );
+					if ( $secret_key ) {
+						try {
+							\Stripe\Stripe::setApiKey( $secret_key );
+							$stripe_session = \Stripe\Checkout\Session::retrieve( $session_id );
+							if ( 'paid' === $stripe_session->payment_status ) {
+								$membership_type = sanitize_key( $stripe_session->metadata->membership_type ?? '' );
+								DDCWWFCSC_Payments::mark_membership_as_paid( $current_user->ID, $membership_type );
+								// Refresh local vars from the now-updated meta.
+								$paid_season = get_user_meta( $current_user->ID, '_ddcwwfcsc_paid_season', true );
+								$is_paid     = $paid_season && $current_season && $paid_season === $current_season;
+							}
+						} catch ( \Exception $e ) {
+							error_log( 'DDCWWFCSC membership verification error: ' . $e->getMessage() );
+						}
+					}
+				}
+			}
+
+			if ( $is_paid ) {
+				$success = $current_season
+					? sprintf(
+						/* translators: %s: season name e.g. "2024/25" */
+						__( 'Annual fee paid for %s — thank you!', 'ddcwwfcsc' ),
+						$current_season
+					)
+					: __( 'Annual fee paid — thank you!', 'ddcwwfcsc' );
+			}
 		}
 
 		self::render_page( 'account', compact( 'current_user', 'error_email', 'error_pass', 'error_avatar', 'success', 'paid_season', 'current_season', 'is_paid', 'has_avatar', 'membership_fees' ) );
