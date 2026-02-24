@@ -276,18 +276,11 @@ class DDCWWFCSC_Payments {
             $session = $event->data->object;
             $type    = $session->metadata->type ?? 'ticket';
 
-            error_log( 'DDCWWFCSC webhook: event=' . $event->type . ' type=' . $type . ' session=' . $session->id );
-
             if ( 'membership' === $type ) {
                 $user_id         = (int) ( $session->metadata->user_id ?? 0 );
                 $membership_type = sanitize_key( $session->metadata->membership_type ?? '' );
-                $current_season  = get_option( 'ddcwwfcsc_current_season', '' );
-                error_log( 'DDCWWFCSC webhook: user_id=' . $user_id . ' membership_type=' . $membership_type . ' current_season=' . var_export( $current_season, true ) );
                 if ( $user_id ) {
-                    $result = self::mark_membership_as_paid( $user_id, $membership_type );
-                    error_log( 'DDCWWFCSC webhook: mark_membership_as_paid result=' . var_export( $result, true ) );
-                    $saved = get_user_meta( $user_id, '_ddcwwfcsc_paid_season', true );
-                    error_log( 'DDCWWFCSC webhook: _ddcwwfcsc_paid_season after save=' . var_export( $saved, true ) );
+                    self::mark_membership_as_paid( $user_id, $membership_type );
                 }
             } else {
                 $request_id = $session->metadata->request_id ?? null;
