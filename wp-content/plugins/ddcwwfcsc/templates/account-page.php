@@ -127,14 +127,13 @@ $logout_url = wp_logout_url( home_url( '/' ) );
 						<button type="submit" class="btn btn--ghost ddcwwfcsc-auth-btn ddcwwfcsc-avatar-save" style="display:none">
 							<?php esc_html_e( 'Save Photo', 'ddcwwfcsc' ); ?>
 						</button>
+						<?php if ( $has_avatar ) : ?>
+							<button type="submit" name="remove_avatar" value="1" class="btn btn--ghost ddcwwfcsc-auth-btn ddcwwfcsc-avatar-remove">
+								<?php esc_html_e( 'Remove photo', 'ddcwwfcsc' ); ?>
+							</button>
+						<?php endif; ?>
 					</div>
 				</div>
-
-				<?php if ( $has_avatar ) : ?>
-					<button type="submit" name="remove_avatar" value="1" class="btn btn--ghost ddcwwfcsc-auth-btn ddcwwfcsc-avatar-remove">
-						<?php esc_html_e( 'Remove photo', 'ddcwwfcsc' ); ?>
-					</button>
-				<?php endif; ?>
 			</form>
 
 			<script>
@@ -162,66 +161,70 @@ $logout_url = wp_logout_url( home_url( '/' ) );
 			</script>
 		</div>
 
-		<!-- Update email -->
-		<div class="ddcwwfcsc-account-section">
-			<h2><?php esc_html_e( 'Email Address', 'ddcwwfcsc' ); ?></h2>
+		<div class="ddcwwfcsc-account-settings-grid">
 
-			<?php if ( $error_email ) : ?>
-				<div class="ddcwwfcsc-auth-notice ddcwwfcsc-auth-notice--error">
-					<?php echo esc_html( $error_email ); ?>
-				</div>
-			<?php endif; ?>
+			<!-- Update email -->
+			<div class="ddcwwfcsc-account-section">
+				<h2><?php esc_html_e( 'Email Address', 'ddcwwfcsc' ); ?></h2>
 
-			<form class="ddcwwfcsc-auth-form" method="post" action="<?php echo esc_url( DDCWWFCSC_Member_Front::get_account_url() ); ?>">
-				<?php wp_nonce_field( 'ddcwwfcsc_account_email', 'ddcwwfcsc_account_nonce' ); ?>
-				<input type="hidden" name="ddcwwfcsc_account_action" value="update_email">
+				<?php if ( $error_email ) : ?>
+					<div class="ddcwwfcsc-auth-notice ddcwwfcsc-auth-notice--error">
+						<?php echo esc_html( $error_email ); ?>
+					</div>
+				<?php endif; ?>
 
-				<div class="ddcwwfcsc-auth-field">
-					<label for="new_email"><?php esc_html_e( 'Email Address', 'ddcwwfcsc' ); ?></label>
-					<input type="email" name="new_email" id="new_email" autocomplete="email" required
-						value="<?php echo esc_attr( $current_user->user_email ); ?>">
-				</div>
+				<form class="ddcwwfcsc-auth-form" method="post" action="<?php echo esc_url( DDCWWFCSC_Member_Front::get_account_url() ); ?>">
+					<?php wp_nonce_field( 'ddcwwfcsc_account_email', 'ddcwwfcsc_account_nonce' ); ?>
+					<input type="hidden" name="ddcwwfcsc_account_action" value="update_email">
 
-				<button type="submit" class="btn btn--ghost ddcwwfcsc-auth-btn">
-					<?php esc_html_e( 'Update Email', 'ddcwwfcsc' ); ?>
-				</button>
-			</form>
-		</div>
+					<div class="ddcwwfcsc-auth-field">
+						<label for="new_email"><?php esc_html_e( 'Email Address', 'ddcwwfcsc' ); ?></label>
+						<input type="email" name="new_email" id="new_email" autocomplete="email" required
+							value="<?php echo esc_attr( $current_user->user_email ); ?>">
+					</div>
 
-		<!-- Change password -->
-		<div class="ddcwwfcsc-account-section">
-			<h2><?php esc_html_e( 'Change Password', 'ddcwwfcsc' ); ?></h2>
+					<button type="submit" class="btn btn--ghost ddcwwfcsc-auth-btn">
+						<?php esc_html_e( 'Update Email', 'ddcwwfcsc' ); ?>
+					</button>
+				</form>
+			</div>
 
-			<?php if ( $error_pass ) : ?>
-				<div class="ddcwwfcsc-auth-notice ddcwwfcsc-auth-notice--error">
-					<?php echo esc_html( $error_pass ); ?>
-				</div>
-			<?php endif; ?>
+			<!-- Change password -->
+			<div class="ddcwwfcsc-account-section">
+				<h2><?php esc_html_e( 'Change Password', 'ddcwwfcsc' ); ?></h2>
 
-			<form class="ddcwwfcsc-auth-form" method="post" action="<?php echo esc_url( DDCWWFCSC_Member_Front::get_account_url() ); ?>">
-				<?php wp_nonce_field( 'ddcwwfcsc_account_password', 'ddcwwfcsc_account_nonce' ); ?>
-				<input type="hidden" name="ddcwwfcsc_account_action" value="update_password">
+				<?php if ( $error_pass ) : ?>
+					<div class="ddcwwfcsc-auth-notice ddcwwfcsc-auth-notice--error">
+						<?php echo esc_html( $error_pass ); ?>
+					</div>
+				<?php endif; ?>
 
-				<div class="ddcwwfcsc-auth-field">
-					<label for="current_password"><?php esc_html_e( 'Current Password', 'ddcwwfcsc' ); ?></label>
-					<input type="password" name="current_password" id="current_password" autocomplete="current-password" required>
-				</div>
+				<form class="ddcwwfcsc-auth-form" method="post" action="<?php echo esc_url( DDCWWFCSC_Member_Front::get_account_url() ); ?>">
+					<?php wp_nonce_field( 'ddcwwfcsc_account_password', 'ddcwwfcsc_account_nonce' ); ?>
+					<input type="hidden" name="ddcwwfcsc_account_action" value="update_password">
 
-				<div class="ddcwwfcsc-auth-field">
-					<label for="new_password"><?php esc_html_e( 'New Password', 'ddcwwfcsc' ); ?></label>
-					<input type="password" name="new_password" id="new_password" autocomplete="new-password" required minlength="8">
-					<span class="ddcwwfcsc-auth-hint"><?php esc_html_e( 'Minimum 8 characters.', 'ddcwwfcsc' ); ?></span>
-				</div>
+					<div class="ddcwwfcsc-auth-field">
+						<label for="current_password"><?php esc_html_e( 'Current Password', 'ddcwwfcsc' ); ?></label>
+						<input type="password" name="current_password" id="current_password" autocomplete="current-password" required>
+					</div>
 
-				<div class="ddcwwfcsc-auth-field">
-					<label for="new_password2"><?php esc_html_e( 'Confirm New Password', 'ddcwwfcsc' ); ?></label>
-					<input type="password" name="new_password2" id="new_password2" autocomplete="new-password" required minlength="8">
-				</div>
+					<div class="ddcwwfcsc-auth-field">
+						<label for="new_password"><?php esc_html_e( 'New Password', 'ddcwwfcsc' ); ?></label>
+						<input type="password" name="new_password" id="new_password" autocomplete="new-password" required minlength="8">
+						<span class="ddcwwfcsc-auth-hint"><?php esc_html_e( 'Minimum 8 characters.', 'ddcwwfcsc' ); ?></span>
+					</div>
 
-				<button type="submit" class="btn btn--ghost ddcwwfcsc-auth-btn">
-					<?php esc_html_e( 'Update Password', 'ddcwwfcsc' ); ?>
-				</button>
-			</form>
+					<div class="ddcwwfcsc-auth-field">
+						<label for="new_password2"><?php esc_html_e( 'Confirm New Password', 'ddcwwfcsc' ); ?></label>
+						<input type="password" name="new_password2" id="new_password2" autocomplete="new-password" required minlength="8">
+					</div>
+
+					<button type="submit" class="btn btn--ghost ddcwwfcsc-auth-btn">
+						<?php esc_html_e( 'Update Password', 'ddcwwfcsc' ); ?>
+					</button>
+				</form>
+			</div>
+
 		</div>
 
 		<!-- Log out -->
