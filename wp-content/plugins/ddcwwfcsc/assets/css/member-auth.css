@@ -435,6 +435,61 @@
 	color: #bbb;
 }
 
+/* Membership fee type selector */
+.ddcwwfcsc-membership-fee-form {
+	margin-top: 0.75rem;
+}
+
+.ddcwwfcsc-fee-options {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	margin-bottom: 0.75rem;
+}
+
+.ddcwwfcsc-fee-option {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.6rem 0.75rem;
+	border: 2px solid #eee;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 0.9rem;
+	background: #fff;
+	transition: border-color 0.15s, background 0.15s;
+}
+
+.ddcwwfcsc-fee-option:has(input:checked) {
+	border-color: var(--color-gold, #d4a843);
+	background: #fdf9f0;
+}
+
+.ddcwwfcsc-fee-option input[type="radio"] {
+	margin: 0;
+	flex-shrink: 0;
+	accent-color: var(--color-gold, #d4a843);
+}
+
+.ddcwwfcsc-fee-option-label {
+	flex: 1;
+	font-weight: 500;
+}
+
+.ddcwwfcsc-fee-option-amount {
+	font-weight: 700;
+}
+
+[data-theme="dark"] .ddcwwfcsc-fee-option {
+	background: #2a2a2a;
+	border-color: #444;
+}
+
+[data-theme="dark"] .ddcwwfcsc-fee-option:has(input:checked) {
+	border-color: var(--color-gold, #d4a843);
+	background: #2e2a1f;
+}
+
 /* ── Responsive ────────────────────────────────────────────────────────────── */
 
 @media ( max-width: 480px ) {

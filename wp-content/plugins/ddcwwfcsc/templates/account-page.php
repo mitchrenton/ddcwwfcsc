@@ -12,6 +12,7 @@
  * @var string  $current_season The configured current season (e.g. "2024/25").
  * @var bool    $is_paid        Whether the membership fee is paid for the current season.
  * @var bool    $has_avatar    Whether the user has a custom avatar set.
+ * @var array   $membership_fees Fees keyed by type slug (standard|concessionary|junior); 0 = hidden.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -64,6 +65,38 @@ $logout_url = wp_logout_url( home_url( '/' ) );
 					<span class="ddcwwfcsc-account-unpaid"><?php esc_html_e( 'Not yet paid', 'ddcwwfcsc' ); ?></span>
 				<?php endif; ?>
 			</div>
+
+		<?php
+		$_available_fees = array_filter( $membership_fees );
+		if ( ! $is_paid && ! empty( $_available_fees ) ) :
+			$_type_labels = DDCWWFCSC_Payments::get_membership_type_labels();
+			$_shown       = 0;
+		?>
+			<form method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>" class="ddcwwfcsc-membership-fee-form">
+				<div class="ddcwwfcsc-fee-options">
+					<?php foreach ( $membership_fees as $_slug => $_amount ) :
+						if ( $_amount <= 0 ) continue;
+					?>
+						<label class="ddcwwfcsc-fee-option">
+							<input type="radio" name="ddcwwfcsc_membership_checkout"
+							       value="<?php echo esc_attr( $_slug ); ?>"
+							       <?php echo 0 === $_shown ? 'checked' : ''; ?>>
+							<span class="ddcwwfcsc-fee-option-label">
+								<?php echo esc_html( $_type_labels[ $_slug ] ?? $_slug ); ?>
+							</span>
+							<span class="ddcwwfcsc-fee-option-amount">
+								£<?php echo esc_html( number_format( $_amount, 2 ) ); ?>
+							</span>
+						</label>
+						<?php $_shown++; ?>
+					<?php endforeach; ?>
+				</div>
+				<button type="submit" class="ddcwwfcsc-auth-btn">
+					<?php esc_html_e( 'Pay annual fee', 'ddcwwfcsc' ); ?>
+				</button>
+			</form>
+		<?php endif; ?>
+
 		</div>
 
 		<!-- Profile photo -->

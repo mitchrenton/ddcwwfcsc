@@ -191,10 +191,14 @@ class DDCWWFCSC_Member_Admin {
 						</tr>
 					</thead>
 					<tbody>
-						<?php foreach ( $members as $member ) :
-							$paid_season    = get_user_meta( $member->ID, '_ddcwwfcsc_paid_season', true );
-							$current_season = get_option( 'ddcwwfcsc_current_season', '' );
-							$is_current     = $paid_season && $current_season && $paid_season === $current_season;
+						<?php
+						$_type_labels = DDCWWFCSC_Payments::get_membership_type_labels();
+						foreach ( $members as $member ) :
+							$paid_season     = get_user_meta( $member->ID, '_ddcwwfcsc_paid_season', true );
+							$membership_type = get_user_meta( $member->ID, '_ddcwwfcsc_membership_type', true );
+							$current_season  = get_option( 'ddcwwfcsc_current_season', '' );
+							$is_current      = $paid_season && $current_season && $paid_season === $current_season;
+							$type_label      = $membership_type && isset( $_type_labels[ $membership_type ] ) ? ' (' . $_type_labels[ $membership_type ] . ')' : '';
 							?>
 							<tr>
 								<td><strong><?php echo esc_html( $member->display_name ); ?></strong></td>
@@ -204,7 +208,7 @@ class DDCWWFCSC_Member_Admin {
 									<?php if ( ! $paid_season ) : ?>
 										<span style="color:#d63638"><?php esc_html_e( 'Not paid', 'ddcwwfcsc' ); ?></span>
 									<?php elseif ( $is_current ) : ?>
-										<span style="color:#00a32a"><?php echo esc_html( 'Paid: ' . $paid_season ); ?></span>
+										<span style="color:#00a32a"><?php echo esc_html( 'Paid: ' . $paid_season . $type_label ); ?></span>
 									<?php else : ?>
 										<span style="color:#d63638"><?php esc_html_e( 'Expired', 'ddcwwfcsc' ); ?></span>
 									<?php endif; ?>

@@ -151,6 +151,24 @@ class DDCWWFCSC_Settings {
             'default'           => '',
         ) );
 
+        register_setting( 'ddcwwfcsc_settings', 'ddcwwfcsc_membership_fee_standard', array(
+            'type'              => 'number',
+            'sanitize_callback' => 'floatval',
+            'default'           => 0,
+        ) );
+
+        register_setting( 'ddcwwfcsc_settings', 'ddcwwfcsc_membership_fee_concessionary', array(
+            'type'              => 'number',
+            'sanitize_callback' => 'floatval',
+            'default'           => 0,
+        ) );
+
+        register_setting( 'ddcwwfcsc_settings', 'ddcwwfcsc_membership_fee_junior', array(
+            'type'              => 'number',
+            'sanitize_callback' => 'floatval',
+            'default'           => 0,
+        ) );
+
         add_settings_section(
             'ddcwwfcsc_membership_section',
             __( 'Membership', 'ddcwwfcsc' ),
@@ -162,6 +180,14 @@ class DDCWWFCSC_Settings {
             'ddcwwfcsc_current_season',
             __( 'Current Season', 'ddcwwfcsc' ),
             array( __CLASS__, 'render_current_season_field' ),
+            'ddcwwfcsc-settings',
+            'ddcwwfcsc_membership_section'
+        );
+
+        add_settings_field(
+            'ddcwwfcsc_membership_fees',
+            __( 'Annual Fees (£)', 'ddcwwfcsc' ),
+            array( __CLASS__, 'render_membership_fees_field' ),
             'ddcwwfcsc-settings',
             'ddcwwfcsc_membership_section'
         );
@@ -409,7 +435,7 @@ class DDCWWFCSC_Settings {
      * Render the Membership section description.
      */
     public static function render_membership_section() {
-        echo '<p>' . esc_html__( 'Set the active season so the system knows which season membership fees apply to.', 'ddcwwfcsc' ) . '</p>';
+        echo '<p>' . esc_html__( 'Set the active season and annual fees per membership type. Members select their type at checkout.', 'ddcwwfcsc' ) . '</p>';
     }
 
     /**
@@ -444,6 +470,30 @@ class DDCWWFCSC_Settings {
         </select>
         <p class="description"><?php esc_html_e( 'Members are considered paid if their recorded season matches this value.', 'ddcwwfcsc' ); ?></p>
         <?php
+    }
+
+    /**
+     * Render the Annual Fees field (one row per membership type).
+     */
+    public static function render_membership_fees_field() {
+        $tiers = array(
+            'standard'      => array( 'label' => __( 'Standard', 'ddcwwfcsc' ), 'option' => 'ddcwwfcsc_membership_fee_standard' ),
+            'concessionary' => array( 'label' => __( 'Non-working', 'ddcwwfcsc' ), 'option' => 'ddcwwfcsc_membership_fee_concessionary' ),
+            'junior'        => array( 'label' => __( 'Junior / Student', 'ddcwwfcsc' ), 'option' => 'ddcwwfcsc_membership_fee_junior' ),
+        );
+        foreach ( $tiers as $slug => $tier ) :
+            $value = get_option( $tier['option'], 0 );
+            ?>
+            <p style="margin:0 0 6px">
+                <label style="display:inline-block;width:120px" for="<?php echo esc_attr( $tier['option'] ); ?>"><?php echo esc_html( $tier['label'] ); ?></label>
+                <input type="number" id="<?php echo esc_attr( $tier['option'] ); ?>"
+                       name="<?php echo esc_attr( $tier['option'] ); ?>"
+                       value="<?php echo esc_attr( $value ); ?>"
+                       step="0.01" min="0" class="small-text">
+            </p>
+            <?php
+        endforeach;
+        echo '<p class="description">' . esc_html__( 'Members choose their type when paying. Set a fee to 0 to hide that option.', 'ddcwwfcsc' ) . '</p>';
     }
 
     /**

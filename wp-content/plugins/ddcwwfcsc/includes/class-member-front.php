@@ -276,8 +276,27 @@ class DDCWWFCSC_Member_Front {
 		$current_season = get_option( 'ddcwwfcsc_current_season', '' );
 		$is_paid        = $paid_season && $current_season && $paid_season === $current_season;
 		$has_avatar     = (bool) get_user_meta( $current_user->ID, DDCWWFCSC_Custom_Avatar::META_KEY, true );
+		$membership_fees = array(
+			'standard'      => (float) get_option( 'ddcwwfcsc_membership_fee_standard', 0 ),
+			'concessionary' => (float) get_option( 'ddcwwfcsc_membership_fee_concessionary', 0 ),
+			'junior'        => (float) get_option( 'ddcwwfcsc_membership_fee_junior', 0 ),
+		);
 
-		self::render_page( 'account', compact( 'current_user', 'error_email', 'error_pass', 'error_avatar', 'success', 'paid_season', 'current_season', 'is_paid', 'has_avatar' ) );
+		// Show a success message when returning from a successful membership payment.
+		// Also optimistically mark as paid — the Stripe webhook may not have fired yet.
+		if ( ! $success && isset( $_GET['payment_status'] ) && 'membership_paid' === sanitize_key( $_GET['payment_status'] ) ) {
+			$success = $current_season
+				? sprintf(
+					/* translators: %s: season name e.g. "2024/25" */
+					__( 'Annual fee paid for %s — thank you!', 'ddcwwfcsc' ),
+					$current_season
+				)
+				: __( 'Annual fee paid — thank you!', 'ddcwwfcsc' );
+			$is_paid     = true;
+			$paid_season = $current_season;
+		}
+
+		self::render_page( 'account', compact( 'current_user', 'error_email', 'error_pass', 'error_avatar', 'success', 'paid_season', 'current_season', 'is_paid', 'has_avatar', 'membership_fees' ) );
 		exit;
 	}
 

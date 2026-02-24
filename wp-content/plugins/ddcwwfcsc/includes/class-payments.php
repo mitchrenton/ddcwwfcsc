@@ -15,6 +15,7 @@ class DDCWWFCSC_Payments {
     public static function init() {
         add_action( 'rest_api_init', array( __CLASS__, 'register_webhook_route' ) );
         add_action( 'template_redirect', array( __CLASS__, 'handle_payment_page' ) );
+        add_action( 'template_redirect', array( __CLASS__, 'handle_membership_checkout' ) );
         add_action( 'ddcwwfcsc_expire_payment_links', array( __CLASS__, 'expire_payment_links' ) );
         add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_payment_styles' ) );
     }
@@ -272,11 +273,20 @@ class DDCWWFCSC_Payments {
         }
 
         if ( 'checkout.session.completed' === $event->type ) {
-            $session    = $event->data->object;
-            $request_id = $session->metadata->request_id ?? null;
+            $session = $event->data->object;
+            $type    = $session->metadata->type ?? 'ticket';
 
-            if ( $request_id ) {
-                self::mark_as_paid( (int) $request_id, 'stripe', $session->id );
+            if ( 'membership' === $type ) {
+                $user_id         = (int) ( $session->metadata->user_id ?? 0 );
+                $membership_type = sanitize_key( $session->metadata->membership_type ?? '' );
+                if ( $user_id ) {
+                    self::mark_membership_as_paid( $user_id, $membership_type );
+                }
+            } else {
+                $request_id = $session->metadata->request_id ?? null;
+                if ( $request_id ) {
+                    self::mark_as_paid( (int) $request_id, 'stripe', $session->id );
+                }
             }
         }
 
@@ -340,6 +350,128 @@ class DDCWWFCSC_Payments {
             $payment_method
         );
 
+        return true;
+    }
+
+    /**
+     * Return display labels keyed by membership type slug.
+     *
+     * @return array<string, string>
+     */
+    public static function get_membership_type_labels() {
+        return array(
+            'standard'      => __( 'Standard', 'ddcwwfcsc' ),
+            'concessionary' => __( 'Non-working', 'ddcwwfcsc' ),
+            'junior'        => __( 'Junior / Student', 'ddcwwfcsc' ),
+        );
+    }
+
+    /**
+     * Handle the membership Stripe checkout redirect.
+     * Triggered by /?ddcwwfcsc_membership_checkout=<type> on template_redirect.
+     */
+    public static function handle_membership_checkout() {
+        if ( ! isset( $_GET['ddcwwfcsc_membership_checkout'] ) ) {
+            return;
+        }
+
+        $type        = sanitize_key( $_GET['ddcwwfcsc_membership_checkout'] );
+        $fee_options = array(
+            'standard'      => 'ddcwwfcsc_membership_fee_standard',
+            'concessionary' => 'ddcwwfcsc_membership_fee_concessionary',
+            'junior'        => 'ddcwwfcsc_membership_fee_junior',
+        );
+
+        if ( ! array_key_exists( $type, $fee_options ) ) {
+            return;
+        }
+
+        if ( ! is_user_logged_in() ) {
+            wp_safe_redirect( DDCWWFCSC_Member_Front::get_login_url( DDCWWFCSC_Member_Front::get_account_url() ) );
+            exit;
+        }
+
+        $user           = wp_get_current_user();
+        $paid_season    = get_user_meta( $user->ID, '_ddcwwfcsc_paid_season', true );
+        $current_season = get_option( 'ddcwwfcsc_current_season', '' );
+        $is_paid        = $paid_season && $current_season && $paid_season === $current_season;
+
+        if ( $is_paid ) {
+            wp_safe_redirect( DDCWWFCSC_Member_Front::get_account_url() );
+            exit;
+        }
+
+        $fee = (float) get_option( $fee_options[ $type ], 0 );
+        if ( $fee <= 0 ) {
+            wp_die( esc_html__( 'That membership type is not currently available. Please contact the club.', 'ddcwwfcsc' ) );
+        }
+
+        $secret_key = get_option( 'ddcwwfcsc_stripe_secret_key', '' );
+        if ( empty( $secret_key ) ) {
+            wp_die( esc_html__( 'Stripe is not configured. Please contact the club.', 'ddcwwfcsc' ) );
+        }
+
+        \Stripe\Stripe::setApiKey( $secret_key );
+
+        $labels       = self::get_membership_type_labels();
+        $type_label   = $labels[ $type ] ?? $type;
+        $account_url  = DDCWWFCSC_Member_Front::get_account_url();
+        $success_url  = add_query_arg( 'payment_status', 'membership_paid', $account_url );
+        $cancel_url   = add_query_arg( 'payment_status', 'membership_cancelled', $account_url );
+        $season_label = $current_season
+            ? sprintf( '%s Membership — %s', $type_label, $current_season )
+            : sprintf( '%s Membership', $type_label );
+
+        try {
+            $session = \Stripe\Checkout\Session::create( array(
+                'payment_method_types' => array( 'card' ),
+                'mode'                 => 'payment',
+                'customer_email'       => $user->user_email,
+                'line_items'           => array(
+                    array(
+                        'price_data' => array(
+                            'currency'     => 'gbp',
+                            'unit_amount'  => (int) round( $fee * 100 ),
+                            'product_data' => array(
+                                'name' => $season_label,
+                            ),
+                        ),
+                        'quantity' => 1,
+                    ),
+                ),
+                'metadata'    => array(
+                    'type'            => 'membership',
+                    'membership_type' => $type,
+                    'user_id'         => $user->ID,
+                ),
+                'success_url' => $success_url,
+                'cancel_url'  => $cancel_url,
+            ) );
+
+            wp_redirect( $session->url );
+            exit;
+        } catch ( \Exception $e ) {
+            error_log( 'DDCWWFCSC Membership Stripe error: ' . $e->getMessage() );
+            wp_die( esc_html__( 'Unable to connect to the payment provider. Please try again or contact the club.', 'ddcwwfcsc' ) );
+        }
+    }
+
+    /**
+     * Mark a member's annual fee as paid for the current season.
+     *
+     * @param int    $user_id         The WordPress user ID.
+     * @param string $membership_type Membership type slug (standard|concessionary|junior).
+     * @return bool True on success, false if no current season is configured.
+     */
+    public static function mark_membership_as_paid( $user_id, $membership_type = '' ) {
+        $current_season = get_option( 'ddcwwfcsc_current_season', '' );
+        if ( ! $current_season ) {
+            return false;
+        }
+        update_user_meta( $user_id, '_ddcwwfcsc_paid_season', $current_season );
+        if ( $membership_type ) {
+            update_user_meta( $user_id, '_ddcwwfcsc_membership_type', $membership_type );
+        }
         return true;
     }
 
