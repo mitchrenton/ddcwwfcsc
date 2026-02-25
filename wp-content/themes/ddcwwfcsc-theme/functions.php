@@ -16,3 +16,4 @@ require DDCWWFCSC_THEME_DIR . '/inc/enqueue.php';
 require DDCWWFCSC_THEME_DIR . '/inc/customizer.php';
 require DDCWWFCSC_THEME_DIR . '/inc/template-tags.php';
 require DDCWWFCSC_THEME_DIR . '/inc/dark-mode.php';
+require DDCWWFCSC_THEME_DIR . '/inc/analytics.php';
