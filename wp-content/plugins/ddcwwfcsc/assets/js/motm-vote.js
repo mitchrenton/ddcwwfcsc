@@ -49,6 +49,13 @@
             } )
             .then( function ( result ) {
                 if ( result.success ) {
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push( {
+                        event:      'motm_vote',
+                        fixture_id: parseInt( fixtureId, 10 ),
+                        player:     selected.value,
+                    } );
+
                     // Replace the form with the voted message + tally.
                     var section = form.closest( '.ddcwwfcsc-motm-section' );
                     if ( section ) {

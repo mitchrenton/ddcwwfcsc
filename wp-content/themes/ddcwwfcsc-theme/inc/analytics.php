@@ -89,3 +89,55 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 	<?php
 }
 add_action( 'wp_body_open', 'ddcwwfcsc_gtm_body', 1 );
+
+/**
+ * Handle server-side analytics events passed via the `ae` query parameter,
+ * and register the outbound link click listener.
+ *
+ * The `ae` param is appended to redirect URLs by the plugin on login/register
+ * success so the event fires on the landing page after navigation completes.
+ * history.replaceState() cleans the param from the visible URL immediately.
+ */
+function ddcwwfcsc_analytics_footer(): void {
+	if ( ! ddcwwfcsc_gtm_config() ) {
+		return; // GTM not active on this domain — skip.
+	}
+
+	$allowed = array( 'login', 'register' );
+	$ae      = sanitize_key( $_GET['ae'] ?? '' );
+	$event   = in_array( $ae, $allowed, true ) ? $ae : '';
+	?>
+<script>
+(function () {
+	window.dataLayer = window.dataLayer || [];
+
+	<?php if ( $event ) : ?>
+	window.dataLayer.push( { event: <?php echo wp_json_encode( $event ); ?> } );
+	if ( history.replaceState ) {
+		var _u = new URL( window.location.href );
+		_u.searchParams.delete( 'ae' );
+		history.replaceState( null, '', _u.toString() );
+	}
+	<?php endif; ?>
+
+	// Outbound link click tracking.
+	document.addEventListener( 'click', function ( e ) {
+		var a = e.target.closest( 'a[href]' );
+		if ( ! a ) return;
+		try {
+			var dest = new URL( a.href );
+			if ( dest.hostname && dest.hostname !== window.location.hostname ) {
+				window.dataLayer.push( {
+					event:       'outbound_click',
+					link_url:    a.href,
+					link_domain: dest.hostname,
+					link_text:   ( a.textContent || '' ).trim().slice( 0, 100 ),
+				} );
+			}
+		} catch ( err ) {}
+	} );
+})();
+</script>
+	<?php
+}
+add_action( 'wp_footer', 'ddcwwfcsc_analytics_footer', 99 );

@@ -42,6 +42,20 @@ if ( ! defined( 'ABSPATH' ) ) {
             <p><?php esc_html_e( 'Thank you for your payment. You will receive a confirmation email shortly. See you on match day!', 'ddcwwfcsc' ); ?></p>
         </div>
 
+        <?php if ( $request ) : ?>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push( {
+            event:          'purchase',
+            transaction_id: '<?php echo absint( $request->id ); ?>',
+            currency:       'GBP',
+            value:          <?php echo (float) $request->amount; ?>,
+            num_tickets:    <?php echo absint( $request->num_tickets ); ?>,
+            fixture_id:     <?php echo absint( $request->fixture_id ); ?>,
+        } );
+        </script>
+        <?php endif; ?>
+
     <?php elseif ( 'cancelled_checkout' === $state ) : ?>
 
         <div class="ddcwwfcsc-payment-card ddcwwfcsc-payment-message">
@@ -105,6 +119,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
             <p class="ddcwwfcsc-payment-secure"><?php esc_html_e( 'Payments are processed securely by Stripe.', 'ddcwwfcsc' ); ?></p>
         </div>
+
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push( {
+            event:       'begin_checkout',
+            currency:    'GBP',
+            value:       <?php echo (float) $request->amount; ?>,
+            num_tickets: <?php echo absint( $request->num_tickets ); ?>,
+            fixture_id:  <?php echo absint( $request->fixture_id ); ?>,
+        } );
+        </script>
 
     <?php endif; ?>
 

@@ -133,6 +133,15 @@
 				if ( result.success ) {
 					showMessage( messageEl, result.data.message, 'success' );
 
+					window.dataLayer = window.dataLayer || [];
+					window.dataLayer.push( {
+						event:       'ticket_request',
+						fixture_id:  parseInt( fixtureId, 10 ),
+						num_tickets: numTickets,
+						value:       parseFloat( form.getAttribute( 'data-price' ) || '0' ) * numTickets,
+						currency:    'GBP',
+					} );
+
 					var remaining    = result.data.remaining;
 					var maxPerPerson = parseInt( form.getAttribute( 'data-max-per-person' ), 10 ) || 1;
 					var newMax       = Math.min( maxPerPerson, remaining );

@@ -118,7 +118,7 @@ class DDCWWFCSC_Member_Front {
 				if ( is_wp_error( $user ) ) {
 					$error = __( 'Incorrect username/email or password.', 'ddcwwfcsc' );
 				} else {
-					wp_safe_redirect( self::get_safe_redirect() );
+					wp_safe_redirect( add_query_arg( 'ae', 'login', self::get_safe_redirect() ) );
 					exit;
 				}
 			}
@@ -168,7 +168,7 @@ class DDCWWFCSC_Member_Front {
 						$error = $result->get_error_message();
 					} else {
 						wp_set_auth_cookie( $result, false );
-						wp_safe_redirect( self::get_account_url() );
+						wp_safe_redirect( add_query_arg( 'ae', 'register', self::get_account_url() ) );
 						exit;
 					}
 				}

@@ -41,6 +41,12 @@
 			} )
 			.then( function ( result ) {
 				if ( result.success ) {
+					window.dataLayer = window.dataLayer || [];
+					window.dataLayer.push( {
+						event:    'event_signup',
+						event_id: parseInt( eventId, 10 ),
+					} );
+
 					// Replace form with confirmation text.
 					var confirmed = document.createElement( 'p' );
 					confirmed.className = 'ddcwwfcsc-event-signup-confirmed';

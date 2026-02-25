@@ -34,6 +34,9 @@ $logout_url = wp_logout_url( home_url( '/' ) );
 			<div class="ddcwwfcsc-auth-notice ddcwwfcsc-auth-notice--success">
 				<?php echo esc_html( $success ); ?>
 			</div>
+			<?php if ( isset( $_GET['payment_status'] ) && 'membership_paid' === sanitize_key( $_GET['payment_status'] ) ) : ?>
+				<script>window.dataLayer = window.dataLayer || []; window.dataLayer.push( { event: 'membership_purchase' } );</script>
+			<?php endif; ?>
 		<?php endif; ?>
 
 		<!-- Membership status -->

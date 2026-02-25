@@ -24,6 +24,8 @@ $login_url = add_query_arg( 'ddcwwfcsc_page', 'login', home_url( '/' ) );
 
 		<?php if ( $submitted ) : ?>
 
+			<script>window.dataLayer = window.dataLayer || []; window.dataLayer.push( { event: 'membership_apply' } );</script>
+
 			<div class="ddcwwfcsc-auth-notice ddcwwfcsc-auth-notice--success">
 				<strong><?php esc_html_e( 'Application received!', 'ddcwwfcsc' ); ?></strong>
 				<?php esc_html_e( " The club president will review your application. If it's approved you'll receive an email with a link to create your account.", 'ddcwwfcsc' ); ?>
