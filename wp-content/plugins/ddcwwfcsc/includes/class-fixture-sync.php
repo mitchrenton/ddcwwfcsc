@@ -347,11 +347,6 @@ class DDCWWFCSC_Fixture_Sync {
             // Sync scores for finished matches.
             self::sync_scores( $existing_id, $match );
 
-            // Fetch MOTM lineup for finished matches.
-            if ( 'FINISHED' === $status && class_exists( 'DDCWWFCSC_MOTM_Lineup' ) ) {
-                DDCWWFCSC_MOTM_Lineup::maybe_fetch_lineup( $existing_id );
-            }
-
             // Assign competition and season terms.
             self::assign_competition_term( $existing_id, $code, $comp_api_name );
             self::assign_season_term( $existing_id, $local_date );
@@ -395,11 +390,6 @@ class DDCWWFCSC_Fixture_Sync {
 
         // Sync scores for finished matches.
         self::sync_scores( $post_id, $match );
-
-        // Fetch MOTM lineup for finished matches.
-        if ( 'FINISHED' === $status && class_exists( 'DDCWWFCSC_MOTM_Lineup' ) ) {
-            DDCWWFCSC_MOTM_Lineup::maybe_fetch_lineup( $post_id );
-        }
 
         // Assign competition and season terms.
         self::assign_competition_term( $post_id, $code, $comp_api_name );

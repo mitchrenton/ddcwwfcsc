@@ -48,7 +48,7 @@ if ( $is_home ) {
 // Scores (for results).
 $home_score_raw = get_post_meta( $post_id, '_ddcwwfcsc_home_score', true );
 $away_score_raw = get_post_meta( $post_id, '_ddcwwfcsc_away_score', true );
-$has_score      = '' !== $home_score_raw && '' !== $away_score_raw;
+$has_score      = '' !== $home_score_raw && '' !== $away_score_raw && (int) $home_score_raw >= 0 && (int) $away_score_raw >= 0;
 $left_score     = (int) $home_score_raw;
 $right_score    = (int) $away_score_raw;
 
