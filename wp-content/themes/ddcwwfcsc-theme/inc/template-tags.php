@@ -109,6 +109,52 @@ function ddcwwfcsc_fixture_venue( $post_id = null ) {
 }
 
 /**
+ * Renders a single comment for wp_list_comments().
+ *
+ * @param WP_Comment $comment Comment object.
+ * @param array      $args    wp_list_comments() args.
+ * @param int        $depth   Nesting depth.
+ */
+function ddcwwfcsc_comment( $comment, $args, $depth ) {
+	$tag = 'div' === $args['style'] ? 'div' : 'li';
+	?>
+	<<?php echo esc_attr( $tag ); ?> id="comment-<?php comment_ID(); ?>" <?php comment_class( 'comment-item', $comment ); ?>>
+		<article class="comment-body">
+			<header class="comment-meta">
+				<div class="comment-author">
+					<?php echo get_avatar( $comment, $args['avatar_size'], '', '', array( 'class' => 'comment-avatar' ) ); ?>
+					<div class="comment-author__info">
+						<span class="comment-author__name"><?php comment_author( $comment ); ?></span>
+						<time class="comment-author__date" datetime="<?php comment_date( DATE_W3C, $comment ); ?>">
+							<?php comment_date( get_option( 'date_format' ), $comment ); ?>
+						</time>
+					</div>
+				</div>
+				<?php if ( '0' === $comment->comment_approved ) : ?>
+					<p class="comment-awaiting-moderation"><?php esc_html_e( 'Your comment is awaiting moderation.', 'ddcwwfcsc-theme' ); ?></p>
+				<?php endif; ?>
+			</header>
+
+			<div class="comment-content">
+				<?php comment_text( $comment ); ?>
+			</div>
+
+			<footer class="comment-footer">
+				<?php
+				comment_reply_link( array_merge( $args, array(
+					'add_below' => 'comment',
+					'depth'     => $depth,
+					'max_depth' => $args['max_depth'],
+					'before'    => '<span class="comment-reply">',
+					'after'     => '</span>',
+				) ) );
+				?>
+			</footer>
+		</article>
+	<?php
+}
+
+/**
  * Prints status badges for a fixture (on-sale/sold-out only — venue and upcoming/past are
  * conveyed by team position and archive section headings respectively).
  */
