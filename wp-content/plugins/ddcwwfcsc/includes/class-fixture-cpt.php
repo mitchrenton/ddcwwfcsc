@@ -111,7 +111,7 @@ class DDCWWFCSC_Fixture_CPT {
             'public'              => true,
             'has_archive'         => true,
             'show_in_rest'        => true,
-            'supports'            => array( 'thumbnail' ),
+            'supports'            => array( 'thumbnail', 'comments' ),
             'menu_icon'           => 'dashicons-tickets',
             'rewrite'             => array( 'slug' => 'fixtures' ),
             'capability_type'     => 'post',

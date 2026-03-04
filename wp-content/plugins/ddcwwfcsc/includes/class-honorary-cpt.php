@@ -46,7 +46,7 @@ class DDCWWFCSC_Honorary_CPT {
             'public'              => true,
             'has_archive'         => true,
             'show_in_rest'        => true,
-            'supports'            => array( 'title', 'editor', 'thumbnail' ),
+            'supports'            => array( 'title', 'editor', 'thumbnail', 'comments' ),
             'menu_icon'           => 'dashicons-awards',
             'rewrite'             => array( 'slug' => 'honorary-members' ),
             'capability_type'     => 'post',

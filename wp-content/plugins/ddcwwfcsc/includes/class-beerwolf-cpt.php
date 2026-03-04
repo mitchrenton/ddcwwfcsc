@@ -43,7 +43,7 @@ class DDCWWFCSC_Beerwolf_CPT {
             'public'              => true,
             'has_archive'         => true,
             'show_in_rest'        => true,
-            'supports'            => array( 'title', 'editor' ),
+            'supports'            => array( 'title', 'editor', 'comments' ),
             'menu_icon'           => 'dashicons-beer',
             'rewrite'             => array( 'slug' => 'beerwolf' ),
             'capability_type'     => 'post',

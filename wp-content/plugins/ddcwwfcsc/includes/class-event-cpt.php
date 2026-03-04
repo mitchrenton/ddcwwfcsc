@@ -47,7 +47,7 @@ class DDCWWFCSC_Event_CPT {
             'public'              => true,
             'has_archive'         => true,
             'show_in_rest'        => true,
-            'supports'            => array( 'title', 'editor' ),
+            'supports'            => array( 'title', 'editor', 'comments' ),
             'menu_icon'           => 'dashicons-calendar-alt',
             'rewrite'             => array( 'slug' => 'events' ),
             'capability_type'     => 'post',

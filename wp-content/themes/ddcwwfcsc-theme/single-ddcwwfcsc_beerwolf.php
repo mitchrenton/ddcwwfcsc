@@ -38,6 +38,10 @@ while ( have_posts() ) :
 
 				<?php echo DDCWWFCSC_Beerwolf_Front::render_pubs_html( get_the_ID() ); ?>
 			</article>
+
+			<?php if ( comments_open() || get_comments_number() ) : ?>
+				<?php comments_template(); ?>
+			<?php endif; ?>
 		</div>
 	</main>
 
