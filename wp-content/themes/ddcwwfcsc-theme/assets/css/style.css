@@ -2075,8 +2075,8 @@ label {
 }
 
 .fixture-card__badge {
-	width: 64px;
-	height: 64px;
+	width: 72px;
+	height: 72px;
 	object-fit: contain;
 	flex-shrink: 0;
 }
@@ -2128,28 +2128,9 @@ label {
 	background: rgba(255, 255, 255, 0.08);
 }
 
-/* Featured (first home) */
-.fixture-card--featured .fixture-card__badge {
-	width: 80px;
-	height: 80px;
-}
-
-.fixture-card--featured .fixture-card__opponent {
-	font-size: 1.5rem;
-}
-
 /* Compact (second home) */
 .fixture-card--compact {
 	margin-top: var(--space-md);
-}
-
-.fixture-card--compact .fixture-card__badge {
-	width: 48px;
-	height: 48px;
-}
-
-.fixture-card--compact .fixture-card__opponent {
-	font-size: 1rem;
 }
 
 /* Fixture CTA on single template */

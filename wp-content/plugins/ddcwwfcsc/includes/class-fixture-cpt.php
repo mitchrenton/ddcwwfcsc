@@ -279,12 +279,15 @@ class DDCWWFCSC_Fixture_CPT {
             }
         }
 
-        // Priority 4: Fallback — match by slug.
+        // Priority 4: Fallback — match by slug, preferring SVG over PNG.
         if ( ! $badge_url ) {
-            $candidate = $term->slug . '.png';
-            if ( file_exists( DDCWWFCSC_PLUGIN_DIR . 'assets/img/clubs/' . $candidate ) ) {
-                update_term_meta( $term->term_id, '_ddcwwfcsc_badge', $candidate );
-                $badge_url = DDCWWFCSC_PLUGIN_URL . 'assets/img/clubs/' . $candidate;
+            foreach ( array( '.svg', '.png' ) as $ext ) {
+                $candidate = $term->slug . $ext;
+                if ( file_exists( DDCWWFCSC_PLUGIN_DIR . 'assets/img/clubs/' . $candidate ) ) {
+                    update_term_meta( $term->term_id, '_ddcwwfcsc_badge', $candidate );
+                    $badge_url = DDCWWFCSC_PLUGIN_URL . 'assets/img/clubs/' . $candidate;
+                    break;
+                }
             }
         }
 
