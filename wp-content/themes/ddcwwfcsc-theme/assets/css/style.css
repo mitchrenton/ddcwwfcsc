@@ -2554,6 +2554,24 @@ label {
 	margin: 0 0 var(--space-lg);
 }
 
+/* "Cancel reply" sits on its own line, subdued */
+.comments-area__reply-title small {
+	display: block;
+	font-family: var(--font-body);
+	font-size: 0.8125rem;
+	font-weight: 400;
+	margin-top: var(--space-xs);
+}
+
+.comments-area__reply-title small a {
+	color: var(--text-muted);
+	text-decoration: none;
+}
+
+.comments-area__reply-title small a:hover {
+	color: var(--color-gold);
+}
+
 .comments-area__closed {
 	color: var(--text-muted);
 	font-size: 0.875rem;
@@ -2568,13 +2586,25 @@ label {
 }
 
 .comment-list .children {
-	margin-left: var(--space-xl);
-	padding-left: var(--space-lg);
+	margin-left: var(--space-lg);
+	margin-top: var(--space-md);
+	padding-left: var(--space-md);
 	border-left: 2px solid var(--border);
 }
 
 .comment-item {
-	margin-bottom: var(--space-lg);
+	margin-bottom: var(--space-xl);
+}
+
+/* Progressively smaller avatars in nested replies */
+.comment-list .children .comment-avatar {
+	width: 36px;
+	height: 36px;
+}
+
+.comment-list .children .children .comment-avatar {
+	width: 28px;
+	height: 28px;
 }
 
 .comment-body {
