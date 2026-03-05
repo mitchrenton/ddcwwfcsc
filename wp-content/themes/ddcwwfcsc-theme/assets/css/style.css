@@ -2171,19 +2171,10 @@ label {
 /* Sticky sidebar panel */
 .honorary-sidebar {
 	background: var(--bg-alt);
-	border: 1px solid var(--border);
 	border-radius: var(--radius-lg);
 	padding: var(--space-lg);
 	position: sticky;
 	top: var(--space-lg);
-}
-
-.honorary-sidebar__title {
-	font-size: 1rem;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	color: var(--text-muted);
-	margin: 0 0 var(--space-md);
 }
 
 .honorary-sidebar__list {
@@ -2747,5 +2738,40 @@ label {
 
 	.ticket-modal__inner {
 		padding: var(--space-lg) var(--space-md);
+	}
+}
+
+/* ==========================================================================
+   21. Related Posts
+   ========================================================================== */
+
+.related-posts {
+	margin-top: var(--space-2xl);
+	padding-top: var(--space-xl);
+	border-top: 1px solid var(--border);
+}
+
+.related-posts__heading {
+	font-family: var(--font-heading);
+	font-size: 1.375rem;
+	color: var(--text-heading);
+	margin: 0 0 var(--space-lg);
+}
+
+.related-posts__grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: var(--space-lg);
+}
+
+@media (max-width: 768px) {
+	.related-posts__grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 480px) {
+	.related-posts__grid {
+		grid-template-columns: 1fr;
 	}
 }

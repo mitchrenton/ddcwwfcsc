@@ -29,7 +29,7 @@ function ddcwwfcsc_theme_customizer( $wp_customize ) {
 
 	// Headline.
 	$wp_customize->add_setting( 'ddcwwfcsc_hero_heading', array(
-		'default'           => __( 'Welcome to the Dun Cow', 'ddcwwfcsc-theme' ),
+		'default'           => __( 'Welcome to the DDCWWFCSC', 'ddcwwfcsc-theme' ),
 		'sanitize_callback' => 'sanitize_text_field',
 	) );
 	$wp_customize->add_control( 'ddcwwfcsc_hero_heading', array(

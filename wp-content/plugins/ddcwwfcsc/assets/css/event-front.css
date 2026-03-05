@@ -1,99 +1,148 @@
-/* Event details card */
+/* ==========================================================================
+   Event single page layout
+   ========================================================================== */
+
+.event-layout {
+	display: grid;
+	grid-template-columns: 1fr 340px;
+	gap: var(--space-2xl);
+	align-items: start;
+	padding-top: var(--space-2xl);
+	padding-bottom: var(--space-2xl);
+}
+
+.event-layout__content {
+	min-width: 0;
+}
+
+/* ==========================================================================
+   Event details card (sidebar)
+   ========================================================================== */
+
 .ddcwwfcsc-event-details {
-    background: var(--bg-alt);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5em;
-    margin-bottom: 1.5em;
+	background: var(--bg-alt);
+	border-radius: var(--radius-lg);
+	padding: var(--space-lg);
+	position: sticky;
+	top: var(--space-lg);
 }
 
 .ddcwwfcsc-event-details-list {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75em 2em;
-    margin: 0;
-    padding: 0;
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--space-md);
+	margin: 0 0 var(--space-md);
+	padding: 0;
 }
 
 .ddcwwfcsc-event-detail {
-    display: flex;
-    flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 .ddcwwfcsc-event-detail dt {
-    font-weight: 600;
-    font-size: 0.8em;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-    margin-bottom: 0.2em;
+	font-weight: 600;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--text-muted);
+	margin-bottom: 0.2em;
 }
 
 .ddcwwfcsc-event-detail dd {
-    margin: 0;
-    font-size: 1em;
+	margin: 0;
+	font-size: 0.9375rem;
 }
 
 /* Venue map */
 .ddcwwfcsc-event-map {
-    height: 300px;
-    border-radius: var(--radius);
-    margin-bottom: 1.5em;
+	height: 220px;
+	border-radius: var(--radius);
+	margin-bottom: var(--space-md);
 }
 
 /* Sign-up CTA */
 .ddcwwfcsc-event-signup-row {
-    margin-top: 1em;
-    padding-top: 1em;
-    border-top: 1px solid var(--border);
+	padding-top: var(--space-md);
+	border-top: 1px solid var(--border);
 }
 
 .ddcwwfcsc-event-signup-form {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5em;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.5em;
+}
+
+.ddcwwfcsc-event-signup-btn {
+	width: 100%;
+	justify-content: center;
 }
 
 .ddcwwfcsc-event-signup-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+	opacity: 0.6;
+	cursor: not-allowed;
 }
 
 .ddcwwfcsc-event-signup-confirmed {
-    margin: 0;
-    font-weight: 600;
-    color: #00a32a;
+	margin: 0;
+	font-weight: 600;
+	color: #00a32a;
 }
 
 [data-theme="dark"] .ddcwwfcsc-event-signup-confirmed {
-    color: #4caf50;
+	color: #4caf50;
 }
 
 .ddcwwfcsc-event-signup-message {
-    padding: 0;
-    margin: 0;
-    font-size: 0.9em;
+	padding: 0;
+	margin: 0;
+	font-size: 0.875em;
 }
 
 .ddcwwfcsc-event-signup-message.success {
-    color: #00a32a;
+	color: #00a32a;
 }
 
 .ddcwwfcsc-event-signup-message.error {
-    color: #d63638;
+	color: #d63638;
 }
 
 [data-theme="dark"] .ddcwwfcsc-event-signup-message.success {
-    color: #4caf50;
+	color: #4caf50;
 }
 
 [data-theme="dark"] .ddcwwfcsc-event-signup-message.error {
-    color: #ef5350;
+	color: #ef5350;
 }
 
-@media ( max-width: 600px ) {
-    .ddcwwfcsc-event-details-list {
-        grid-template-columns: 1fr;
-    }
+/* Login prompt */
+.ddcwwfcsc-login-prompt {
+	margin: 0;
+	font-size: 0.9375rem;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 768px) {
+	.event-layout {
+		grid-template-columns: 1fr;
+		padding-top: var(--space-xl);
+		padding-bottom: 0;
+	}
+
+	/* Show details card above the body text on mobile */
+	.event-layout__sidebar {
+		order: -1;
+	}
+
+	.ddcwwfcsc-event-details {
+		position: static;
+	}
+
+	.ddcwwfcsc-event-map {
+		height: 240px;
+	}
 }

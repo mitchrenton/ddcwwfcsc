@@ -38,7 +38,7 @@ while ( have_posts() ) :
 
 				<aside class="honorary-layout__sidebar">
 					<div class="honorary-sidebar">
-						<h3 class="honorary-sidebar__title"><?php esc_html_e( 'Details', 'ddcwwfcsc' ); ?></h3>
+						<h2 class="section-heading"><?php esc_html_e( 'Details', 'ddcwwfcsc' ); ?></h2>
 						<dl class="honorary-sidebar__list">
 							<?php if ( $member['position'] ) : ?>
 								<div class="honorary-sidebar__row">
@@ -75,6 +75,13 @@ while ( have_posts() ) :
 			<?php if ( comments_open() || get_comments_number() ) : ?>
 				<?php comments_template(); ?>
 			<?php endif; ?>
+
+			<?php get_template_part( 'template-parts/related-posts', null, array(
+				'post_type'     => 'ddcwwfcsc_honorary',
+				'template_slug' => 'honorary',
+				'exclude'       => get_the_ID(),
+				'heading'       => __( 'More Honorary Members', 'ddcwwfcsc-theme' ),
+			) ); ?>
 		</div>
 	</main>
 

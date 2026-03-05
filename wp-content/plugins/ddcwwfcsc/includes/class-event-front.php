@@ -74,6 +74,7 @@ class DDCWWFCSC_Event_Front {
         ob_start();
         ?>
         <div class="ddcwwfcsc-event-details">
+            <h2 class="section-heading"><?php esc_html_e( 'Event Details', 'ddcwwfcsc' ); ?></h2>
             <dl class="ddcwwfcsc-event-details-list">
                 <?php if ( $event_date ) : ?>
                     <div class="ddcwwfcsc-event-detail">
@@ -110,10 +111,10 @@ class DDCWWFCSC_Event_Front {
                             <?php
                             $parts = array();
                             if ( $price_member ) {
-                                $parts[] = sprintf( __( 'Members: £%s', 'ddcwwfcsc' ), number_format( (float) $price_member, 2 ) );
+                                $parts[] = sprintf( __( 'Members: £%s', 'ddcwwfcsc' ), number_format( (float) preg_replace( '/[^\d.]/u', '', $price_member ), 2 ) );
                             }
                             if ( $price_non_member ) {
-                                $parts[] = sprintf( __( 'Non-members: £%s', 'ddcwwfcsc' ), number_format( (float) $price_non_member, 2 ) );
+                                $parts[] = sprintf( __( 'Non-members: £%s', 'ddcwwfcsc' ), number_format( (float) preg_replace( '/[^\d.]/u', '', $price_non_member ), 2 ) );
                             }
                             echo esc_html( implode( ' / ', $parts ) );
                             ?>

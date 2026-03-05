@@ -42,6 +42,13 @@ while ( have_posts() ) :
 			<?php if ( comments_open() || get_comments_number() ) : ?>
 				<?php comments_template(); ?>
 			<?php endif; ?>
+
+			<?php get_template_part( 'template-parts/related-posts', null, array(
+				'post_type'     => 'ddcwwfcsc_beerwolf',
+				'template_slug' => 'beerwolf',
+				'exclude'       => get_the_ID(),
+				'heading'       => __( 'More Beerwolf', 'ddcwwfcsc-theme' ),
+			) ); ?>
 		</div>
 	</main>
 

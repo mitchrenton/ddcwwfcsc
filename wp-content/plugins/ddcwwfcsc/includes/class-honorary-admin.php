@@ -113,9 +113,6 @@ class DDCWWFCSC_Honorary_Admin {
     public static function add_columns( $columns ) {
         $new_columns = array();
         foreach ( $columns as $key => $label ) {
-            if ( 'title' === $key ) {
-                $new_columns['photo'] = __( 'Photo', 'ddcwwfcsc' );
-            }
             $new_columns[ $key ] = $label;
             if ( 'title' === $key ) {
                 $new_columns['position']       = __( 'Position', 'ddcwwfcsc' );
@@ -132,11 +129,6 @@ class DDCWWFCSC_Honorary_Admin {
      */
     public static function render_columns( $column, $post_id ) {
         switch ( $column ) {
-            case 'photo':
-                $thumb = get_the_post_thumbnail( $post_id, array( 50, 50 ) );
-                echo $thumb ? $thumb : '—';
-                break;
-
             case 'position':
                 $val = get_post_meta( $post_id, '_ddcwwfcsc_honorary_position', true );
                 echo $val ? esc_html( $val ) : '—';

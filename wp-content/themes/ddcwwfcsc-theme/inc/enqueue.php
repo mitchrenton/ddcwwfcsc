@@ -18,11 +18,14 @@ function ddcwwfcsc_theme_enqueue() {
 		null
 	);
 
+	// Dashicons (used for placeholder icons on honorary members, author avatars, etc.).
+	wp_enqueue_style( 'dashicons' );
+
 	// Main stylesheet.
 	wp_enqueue_style(
 		'ddcwwfcsc-theme-style',
 		DDCWWFCSC_THEME_URI . '/assets/css/style.css',
-		array( 'ddcwwfcsc-fonts' ),
+		array( 'ddcwwfcsc-fonts', 'dashicons' ),
 		DDCWWFCSC_THEME_VERSION
 	);
 

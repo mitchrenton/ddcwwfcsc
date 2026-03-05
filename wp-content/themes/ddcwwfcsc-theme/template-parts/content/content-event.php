@@ -31,13 +31,13 @@ $signup_count  = is_array( $signups ) ? count( $signups ) : 0;
 	<?php if ( $price_member || $price_non ) : ?>
 		<div class="event-card__price">
 			<?php if ( $price_member ) : ?>
-				<?php printf( '%s: &pound;%s', esc_html__( 'Members', 'ddcwwfcsc-theme' ), esc_html( $price_member ) ); ?>
+				<?php printf( '%s: £%s', esc_html__( 'Members', 'ddcwwfcsc-theme' ), number_format( (float) preg_replace( '/[^\d.]/u', '', $price_member ), 2 ) ); ?>
 			<?php endif; ?>
 			<?php if ( $price_member && $price_non ) : ?>
 				&nbsp;&middot;&nbsp;
 			<?php endif; ?>
 			<?php if ( $price_non ) : ?>
-				<?php printf( '%s: &pound;%s', esc_html__( 'Non-members', 'ddcwwfcsc-theme' ), esc_html( $price_non ) ); ?>
+				<?php printf( '%s: £%s', esc_html__( 'Non-members', 'ddcwwfcsc-theme' ), number_format( (float) preg_replace( '/[^\d.]/u', '', $price_non ), 2 ) ); ?>
 			<?php endif; ?>
 		</div>
 	<?php endif; ?>
