@@ -15,6 +15,16 @@ class DDCWWFCSC_Honorary_CPT {
     public static function init() {
         add_action( 'init', array( __CLASS__, 'register_post_type' ) );
         add_action( 'init', array( __CLASS__, 'register_post_meta' ) );
+        add_action( 'pre_get_posts', array( __CLASS__, 'show_all_on_archive' ) );
+    }
+
+    /**
+     * Show all honorary members on the archive without pagination.
+     */
+    public static function show_all_on_archive( $query ) {
+        if ( ! is_admin() && $query->is_main_query() && $query->is_post_type_archive( 'ddcwwfcsc_honorary' ) ) {
+            $query->set( 'posts_per_page', -1 );
+        }
     }
 
     /**

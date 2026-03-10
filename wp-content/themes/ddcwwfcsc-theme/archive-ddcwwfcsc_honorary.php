@@ -20,7 +20,6 @@ get_header();
 					<?php get_template_part( 'template-parts/content/content', 'honorary' ); ?>
 				<?php endwhile; ?>
 			</div>
-			<?php get_template_part( 'template-parts/global/pagination' ); ?>
 		<?php else : ?>
 			<?php get_template_part( 'template-parts/content/content', 'none' ); ?>
 		<?php endif; ?>
